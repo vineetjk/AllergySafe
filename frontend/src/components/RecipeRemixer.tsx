@@ -5,7 +5,7 @@ import { UserProfile, RecipeRemixResponse } from "../types";
 import { remixRecipe, requestVoiceGuide, errorMessage } from "../lib/api";
 import { createUnlockedAudio, playVoice, stopSpeech } from "../lib/audio";
 import {
-  ChefHat, Sparkles, ShieldCheck, Copy, Printer,
+  Sparkles, ShieldCheck, Copy, Printer,
   RefreshCw, ArrowLeftRight, Volume2, Square, Radio, Info
 } from "lucide-react";
 import confetti from "canvas-confetti";
@@ -109,19 +109,8 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
   return (
     <div className="space-y-6">
       {/* Input Formulation */}
-      <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 shadow-sm transition-colors">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-              <ChefHat className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              <span>Recipe Remixer: make any dish {profile.name}-friendly</span>
-            </h3>
-            <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-              Swaps only the ingredients that clash with {profile.name}&apos;s profile and keeps everything else. One ingredient per line.
-            </p>
-          </div>
-        </div>
-
+      <div className="rounded-3xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-6 shadow-sm shadow-stone-200/40 dark:shadow-none transition-colors">
+        <p className="mb-3 text-sm text-stone-500 dark:text-stone-400">Enter the dish and its ingredients, one per line.</p>
         <div className="space-y-3">
           <input
             type="text"
@@ -136,14 +125,14 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
             placeholder="Original recipe ingredients (one per line)..."
             value={ingredientsText}
             onChange={(e) => setIngredientsText(e.target.value)}
-            className="w-full text-base sm:text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-3.5 text-stone-800 dark:text-stone-200 focus:border-emerald-500 focus:outline-none font-mono"
+            className="w-full text-base sm:text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-3.5 text-stone-800 dark:text-stone-200 focus:border-emerald-500 focus:outline-none"
           />
 
           <div className="flex justify-end">
             <button
               onClick={handleRemix}
               disabled={loading}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 px-6 py-2.5 text-sm font-bold text-white shadow-sm hover:from-emerald-700 hover:to-teal-800 transition-all disabled:opacity-50 cursor-pointer"
+              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-emerald-700 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-800 transition-colors disabled:opacity-50 cursor-pointer"
             >
               {loading ? (
                 <>
@@ -170,18 +159,10 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
 
       {/* Remix Results Card */}
       {remixResult && (
-        <div className="rounded-2xl border border-emerald-200/80 dark:border-emerald-900/60 bg-white dark:bg-stone-900 p-6 shadow-md shadow-emerald-50 dark:shadow-none space-y-6 transition-colors">
+        <div className="rounded-3xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-6 shadow-sm shadow-stone-200/40 dark:shadow-none transition-colors space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-stone-100 dark:border-stone-800 gap-3">
             <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
-                  Made for {profile.name}
-                </span>
-                <span className="text-[11px] font-semibold text-stone-600 dark:text-stone-300 bg-stone-100 dark:bg-stone-800 px-2 py-0.5 rounded-full border border-stone-200 dark:border-stone-700">
-                  {remixResult.ai_engine}
-                </span>
-              </div>
-              <h2 className="text-xl font-black text-stone-900 dark:text-stone-100 mt-2">
+              <h2 className="font-display text-2xl font-semibold text-stone-900 dark:text-stone-50">
                 {remixResult.remixed_title}
               </h2>
               <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
@@ -260,7 +241,7 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
 
           {/* Flavor Notes */}
           <div className="rounded-xl border border-emerald-100 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/30 p-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 mb-1 flex items-center gap-1.5">
+            <h4 className="text-sm font-semibold text-emerald-800 dark:text-emerald-300 mb-1 flex items-center gap-1.5">
               <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               <span>Notes</span>
             </h4>
@@ -271,7 +252,7 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
 
           {/* Substitutions: Mobile Card View + Desktop Table View */}
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-3 flex items-center gap-1.5">
+            <h4 className="text-sm font-semibold text-stone-700 dark:text-stone-300 mb-3 flex items-center gap-1.5">
               <ArrowLeftRight className="h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />
               <span>Ingredient swaps</span>
             </h4>
@@ -315,7 +296,7 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
             {/* Desktop Table (>= 640px) */}
             <div className="hidden sm:block overflow-hidden rounded-xl border border-stone-200 dark:border-stone-800">
               <table className="w-full text-left text-xs">
-                <thead className="bg-stone-50 dark:bg-stone-800/80 text-stone-500 dark:text-stone-400 uppercase font-semibold border-b border-stone-200 dark:border-stone-800">
+                <thead className="bg-stone-50 dark:bg-stone-800/80 text-stone-500 dark:text-stone-400 font-semibold border-b border-stone-200 dark:border-stone-800">
                   <tr>
                     <th className="px-4 py-2.5">Original</th>
                     <th className="px-4 py-2.5">Use instead</th>
@@ -361,7 +342,7 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
 
           {/* Instructions */}
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-2">
+            <h4 className="text-sm font-semibold text-stone-700 dark:text-stone-300 mb-2">
               Steps
             </h4>
             <div className="space-y-2">
@@ -378,7 +359,7 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
 
           {/* Cross Contamination Rules */}
           <div className="rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950/50 p-4">
-            <h5 className="text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400 mb-2">
+            <h5 className="text-sm font-semibold text-stone-700 dark:text-stone-300 mb-2">
               Kitchen tips
             </h5>
             <ul className="text-xs text-stone-600 dark:text-stone-400 space-y-1.5 list-disc pl-5">

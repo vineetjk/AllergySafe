@@ -176,26 +176,25 @@ class SafetyAnalyzer:
             overall_verdict = RiskLevel.DANGER
             hazard_score = min(100, 70 + (danger_count * 10))
             summary = (
-                f"🚨 NOT SAFE for {profile.name}: found {danger_count} severe allergen trigger"
-                f"{'s' if danger_count != 1 else ''}. Do not serve without the swaps below."
+                f"Found {danger_count} severe allergen trigger{'s' if danger_count != 1 else ''}. "
+                f"Don't serve it without the swaps below."
             )
         elif caution_count > 0:
             overall_verdict = RiskLevel.CAUTION
             hazard_score = min(65, 30 + (caution_count * 12))
             groups = sorted({f.matched_allergen for f in flags})
             summary = (
-                f"⚠️ OK IN MODERATION for {profile.name}: {caution_count} ingredient"
-                f"{'s' if caution_count != 1 else ''} to limit or swap ({', '.join(groups)}). "
-                f"The suggested swaps make it a better fit."
+                f"{caution_count} ingredient{'s' if caution_count != 1 else ''} to limit or swap "
+                f"({', '.join(groups)}). The suggested swaps make it a better fit."
             )
         else:
             overall_verdict = RiskLevel.SAFE
             hazard_score = 0
             summary = (
-                f"✅ GOOD TO GO for {profile.name}: nothing here conflicts with the "
-                f"{len(active_allergens)} allergies and health needs in {profile.name}'s profile."
+                f"Nothing here conflicts with the {len(active_allergens)} allergies and "
+                f"health needs in {profile.name}'s profile."
                 if active_allergens else
-                f"✅ No conflicts found. {profile.name}'s profile has no allergies or conditions set yet."
+                f"No conflicts found. {profile.name}'s profile has no allergies or conditions set yet."
             )
 
         # Cross reactivity notes

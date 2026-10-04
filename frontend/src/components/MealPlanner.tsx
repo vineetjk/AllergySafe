@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { UserProfile, MealPlanResponse } from "../types";
 import { generateMealPlan, errorMessage } from "../lib/api";
 import {
-  CalendarDays, ShoppingCart, ShieldCheck, Clock, Check,
+  ShoppingCart, ShieldCheck, Clock, Check,
   Sparkles, RefreshCw, CheckSquare, Square, Info
 } from "lucide-react";
 import confetti from "canvas-confetti";
@@ -51,17 +51,9 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
   return (
     <div className="space-y-6">
       {/* Control Box */}
-      <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 shadow-sm transition-colors">
+      <div className="rounded-3xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-6 shadow-sm shadow-stone-200/40 dark:shadow-none transition-colors">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h3 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-              <CalendarDays className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              <span>Meal Planner: one dinner for everyone</span>
-            </h3>
-            <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-              Dinners that suit {profile.name}&apos;s profile, so everyone eats the same meal. Comes with a shopping list.
-            </p>
-          </div>
+          <p className="text-sm text-stone-600 dark:text-stone-300">How many dinners should I plan?</p>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
             <div className="flex items-center gap-1 rounded-xl bg-stone-100 dark:bg-stone-800 p-1 w-full sm:w-auto">
@@ -75,7 +67,7 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
                       : "text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200"
                   }`}
                 >
-                  {d} Days
+                  {d} dinners
                 </button>
               ))}
             </div>
@@ -83,7 +75,7 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
             <button
               onClick={handleGenerate}
               disabled={loading}
-              className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition-colors disabled:opacity-50 cursor-pointer w-full sm:w-auto"
+              className="flex items-center justify-center gap-2 rounded-full bg-emerald-700 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-800 transition-colors disabled:opacity-50 cursor-pointer w-full sm:w-auto"
             >
               {loading ? (
                 <>
@@ -116,11 +108,11 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
             {plan.days.map((day) => (
               <div
                 key={day.day_number}
-                className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                className="rounded-3xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-5 shadow-sm shadow-stone-200/40 dark:shadow-none flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
+                    <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
                       Day {day.day_number} • {day.day_name}
                     </span>
                     <span className="text-xs text-stone-500 dark:text-stone-400 flex items-center gap-1 font-medium">
@@ -129,7 +121,7 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
                     </span>
                   </div>
 
-                  <h4 className="font-bold text-stone-900 dark:text-stone-100 text-sm leading-snug mb-1.5">
+                  <h4 className="font-display text-lg font-semibold text-stone-900 dark:text-stone-50 leading-snug mb-1.5">
                     {day.dinner_title}
                   </h4>
                   <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed mb-3">
@@ -156,7 +148,7 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
           </div>
 
           {/* Grocery List By Aisle */}
-          <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 shadow-sm transition-colors">
+          <div className="rounded-3xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-6 shadow-sm shadow-stone-200/40 dark:shadow-none transition-colors">
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-stone-100 dark:border-stone-800">
               <div className="flex items-center gap-2">
                 <ShoppingCart className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
@@ -172,7 +164,7 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {Object.entries(plan.grocery_list_by_aisle).map(([aisle, items]) => (
                 <div key={aisle} className="space-y-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 bg-stone-50 dark:bg-stone-800/70 px-2.5 py-1 rounded-md border border-stone-200/60 dark:border-stone-700">
+                  <h4 className="text-sm font-semibold text-stone-700 dark:text-stone-300">
                     {aisle} ({items.length})
                   </h4>
                   <ul className="space-y-1 text-xs">
@@ -208,7 +200,7 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
 
           {/* Kitchen Safety Protocol */}
           <div className="rounded-2xl border border-emerald-200/80 dark:border-emerald-900/60 bg-emerald-50/40 dark:bg-emerald-950/30 p-5 transition-colors">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-300 mb-2 flex items-center gap-1.5">
+            <h4 className="text-sm font-semibold text-emerald-900 dark:text-emerald-300 mb-2 flex items-center gap-1.5">
               <ShieldCheck className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
               <span>Kitchen habits that help</span>
             </h4>

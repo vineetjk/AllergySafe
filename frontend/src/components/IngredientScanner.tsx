@@ -5,8 +5,8 @@ import { UserProfile, ScanResponse, ImageScanResult } from "../types";
 import { scanIngredients, errorMessage } from "../lib/api";
 import { CameraScannerModal } from "./CameraScannerModal";
 import {
-  Search, AlertOctagon, CheckCircle2, AlertTriangle, ArrowRight,
-  ChefHat, ShieldAlert, RefreshCw, Camera, Eye, Info, Timer
+  AlertOctagon, CheckCircle2, AlertTriangle, ArrowRight,
+  ChefHat, ShieldAlert, RefreshCw, Camera, Eye, Info
 } from "lucide-react";
 
 interface IngredientScannerProps {
@@ -95,40 +95,28 @@ export const IngredientScanner: React.FC<IngredientScannerProps> = ({ profile, o
   return (
     <div className="space-y-6">
       {/* Search & Input Box */}
-      <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 shadow-sm transition-colors">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-          <div>
-            <h3 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-              <Search className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              <span>Safety Scanner: Can {profile.name} Eat This?</span>
-            </h3>
-            <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-              Paste ingredients or a label, pick a sample, or check a photo.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            {/* Live Camera Scanner Button */}
-            <button
-              onClick={() => setCameraModalOpen(true)}
-              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm hover:from-emerald-700 hover:to-teal-800 transition-all cursor-pointer"
-            >
-              <Camera className="h-4 w-4" />
-              <span>Check a photo</span>
-            </button>
-          </div>
-        </div>
+      <div className="rounded-3xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-6 shadow-sm shadow-stone-200/40 dark:shadow-none transition-colors">
+        <button
+          onClick={() => setCameraModalOpen(true)}
+          className="mb-4 flex w-full items-center gap-3 rounded-2xl border border-dashed border-emerald-300 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/30 px-4 py-3.5 text-left hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-colors cursor-pointer"
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-white">
+            <Camera className="h-5 w-5" />
+          </span>
+          <span>
+            <span className="block text-sm font-semibold text-stone-900 dark:text-stone-100">Check a photo</span>
+            <span className="block text-xs text-stone-500 dark:text-stone-400">A meal, an ingredient, or a food label</span>
+          </span>
+        </button>
 
         {/* Presets Row */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-2 mb-3 -mx-1 px-1">
-          <span className="text-[11px] font-semibold text-stone-400 dark:text-stone-500 uppercase tracking-wider shrink-0 mr-1">
-            Samples:
-          </span>
+        <p className="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400">Or try a sample</p>
+        <div className="flex flex-wrap gap-2 mb-4">
           {PRESETS.map((p) => (
             <button
               key={p.label}
               onClick={() => handleSelectPreset(p)}
-              className={`text-xs px-2.5 py-1 rounded-md border font-medium whitespace-nowrap transition-all cursor-pointer ${
+              className={`text-sm px-3 py-1.5 rounded-full border font-medium transition-colors cursor-pointer ${
                 dishTitle === p.title && !scannedThumbnail
                   ? "bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-700 text-emerald-800 dark:text-emerald-300"
                   : "bg-stone-50 dark:bg-stone-800/80 border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
@@ -154,9 +142,6 @@ export const IngredientScanner: React.FC<IngredientScannerProps> = ({ profile, o
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-stone-900 dark:text-stone-100">
                   {scannedImageResult.dish_name}
-                </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 px-2 py-0.5 rounded-full">
-                  {scannedImageResult.item_category}
                 </span>
               </div>
               <p className="text-[11px] text-stone-600 dark:text-stone-400 mt-1 flex items-center gap-1">
@@ -190,7 +175,7 @@ export const IngredientScanner: React.FC<IngredientScannerProps> = ({ profile, o
             placeholder="Paste ingredients or recipe text here (e.g. Flour, soy sauce, pine nuts, parmesan...)"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            className="w-full text-base sm:text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-3.5 text-stone-800 dark:text-stone-200 placeholder-stone-400 focus:border-emerald-500 focus:outline-none font-mono"
+            className="w-full text-base sm:text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-3.5 text-stone-800 dark:text-stone-200 placeholder-stone-400 focus:border-emerald-500 focus:outline-none"
           />
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
@@ -203,7 +188,7 @@ export const IngredientScanner: React.FC<IngredientScannerProps> = ({ profile, o
               <button
                 onClick={() => handleScan()}
                 disabled={loading}
-                className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition-colors disabled:opacity-50 cursor-pointer w-full sm:w-auto"
+                className="flex items-center justify-center gap-2 rounded-full bg-emerald-700 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-800 transition-colors disabled:opacity-50 cursor-pointer w-full sm:w-auto"
               >
                 {loading ? (
                   <>
@@ -231,7 +216,7 @@ export const IngredientScanner: React.FC<IngredientScannerProps> = ({ profile, o
 
       {/* Results Section */}
       {result && (
-        <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 shadow-sm space-y-6 transition-colors">
+        <div className="rounded-3xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-6 shadow-sm shadow-stone-200/40 dark:shadow-none space-y-5 transition-colors">
           {/* Header Score Card */}
           <div
             className={`rounded-xl p-5 border flex flex-col md:flex-row md:items-center justify-between gap-4 ${
@@ -278,7 +263,7 @@ export const IngredientScanner: React.FC<IngredientScannerProps> = ({ profile, o
 
             {/* Hazard Score Gauge */}
             <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-3 sm:pt-0 border-current/10">
-              <span className="text-xs uppercase font-bold tracking-wider opacity-75">Hazard Index</span>
+              <span className="text-xs font-medium opacity-75">Risk score</span>
               <div className="flex items-baseline gap-1">
                 <span className="text-3xl font-black">{result.hazard_score}</span>
                 <span className="text-xs font-semibold opacity-75">/ 100</span>
@@ -286,23 +271,15 @@ export const IngredientScanner: React.FC<IngredientScannerProps> = ({ profile, o
             </div>
           </div>
 
-          {/* Analysis details */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-stone-500 dark:text-stone-400">
-            <span className="flex items-center gap-1">
-              <Timer className="h-3.5 w-3.5" />
-              {result.ai_trace?.trace?.latency_ms !== undefined
-                ? `Checked in ${result.ai_trace.trace.latency_ms} ms`
-                : "Checked"}
-            </span>
-            <span>{result.total_ingredients_audited} ingredients examined</span>
-            <span>Engine: {result.ai_trace?.engine}</span>
-          </div>
+          <p className="text-xs text-stone-500 dark:text-stone-400">
+            {result.total_ingredients_audited} ingredient{result.total_ingredients_audited === 1 ? "" : "s"} checked against {profile.name}&apos;s profile
+          </p>
 
           {/* Flagged Ingredients List */}
           {result.flags.length > 0 ? (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                <h4 className="text-sm font-semibold text-stone-700 dark:text-stone-300">
                   What to watch out for ({result.flags.length})
                 </h4>
               </div>
@@ -324,7 +301,7 @@ export const IngredientScanner: React.FC<IngredientScannerProps> = ({ profile, o
                             {flag.ingredient_name}
                           </span>
                           <span
-                            className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full ${
+                            className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${
                               flag.risk_level === "DANGER"
                                 ? "bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-200"
                                 : "bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200"
@@ -333,7 +310,7 @@ export const IngredientScanner: React.FC<IngredientScannerProps> = ({ profile, o
                             {flag.matched_allergen}
                           </span>
                           {flag.is_hidden_derivative && (
-                            <span className="text-[10px] bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 font-semibold px-2 py-0.5 rounded-full">
+                            <span className="text-xs text-stone-500 dark:text-stone-400">
                               Hidden source
                             </span>
                           )}
@@ -345,7 +322,7 @@ export const IngredientScanner: React.FC<IngredientScannerProps> = ({ profile, o
 
                       {flag.safe_substitute && (
                         <div className="shrink-0 bg-white/90 dark:bg-stone-800 border border-stone-200/80 dark:border-stone-700 rounded-lg p-2.5 sm:max-w-xs shadow-2xs">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 block">
+                          <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 block">
                             Suggested swap
                           </span>
                           <span className="text-xs font-semibold text-stone-800 dark:text-stone-200">
@@ -373,7 +350,7 @@ export const IngredientScanner: React.FC<IngredientScannerProps> = ({ profile, o
           {/* Cross Contamination Hazards */}
           {result.cross_contamination_risks.length > 0 && (
             <div className="rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50/60 dark:bg-stone-950/40 p-4">
-              <h5 className="text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400 mb-2 flex items-center gap-1.5">
+              <h5 className="text-sm font-semibold text-stone-700 dark:text-stone-300 mb-2 flex items-center gap-1.5">
                 <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
                 <span>Kitchen tips</span>
               </h5>
@@ -399,7 +376,7 @@ export const IngredientScanner: React.FC<IngredientScannerProps> = ({ profile, o
                     .filter(Boolean);
                   onSendToRemix(dishTitle || "Favorite Recipe", ingredientsList);
                 }}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-emerald-200 dark:shadow-none hover:from-emerald-700 hover:to-teal-800 transition-all cursor-pointer"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full bg-emerald-700 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-800 transition-colors cursor-pointer"
               >
                 <ChefHat className="h-4 w-4" />
                 <span>Make a {profile.name}-friendly version</span>

@@ -6,14 +6,16 @@ import { askQuestion, errorMessage, speakText, transcribeAudio } from "../lib/ap
 import { createUnlockedAudio, playVoice, stopSpeech } from "../lib/audio";
 import { useClientValue } from "../lib/store";
 import { CameraScannerModal } from "./CameraScannerModal";
+import { ConditionChip } from "./ProfileSheet";
 import {
-  MessageCircleQuestion, Send, Mic, Square, Camera, Volume2, RefreshCw,
-  CheckCircle2, AlertTriangle, AlertOctagon, ArrowRight, Lightbulb, Utensils, Info,
+  ArrowUp, Mic, Square, Camera, Volume2, RefreshCw,
+  CheckCircle2, AlertTriangle, AlertOctagon, ArrowRight, Lightbulb, Utensils, Info, RotateCcw,
 } from "lucide-react";
 
 interface AskAssistantProps {
   profile: UserProfile;
   voice: HealthResponse["voice"] | null;
+  onOpenProfile: () => void;
 }
 
 type ChatMessage =
@@ -54,7 +56,7 @@ const VERDICT_STYLE = {
   },
 } as const;
 
-export const AskAssistant: React.FC<AskAssistantProps> = ({ profile, voice }) => {
+export const AskAssistant: React.FC<AskAssistantProps> = ({ profile, voice, onOpenProfile }) => {
   const name = profile.name;
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -84,10 +86,20 @@ export const AskAssistant: React.FC<AskAssistantProps> = ({ profile, voice }) =>
   const voiceMode: VoiceMode =
     voice?.speech_to_text && canRecord ? "elevenlabs" : hasRecognition ? "browser" : "none";
 
-  // Keep the newest message in view.
+  // New answers scroll so their first line (the verdict) is at the top;
+  // everything else keeps the newest content in view.
   useEffect(() => {
     const el = listRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (!el) return;
+    const last = messages[messages.length - 1];
+    if (last?.role === "assistant" && !loading) {
+      const node = el.querySelector<HTMLElement>(`[data-msg="${last.id}"]`);
+      if (node) {
+        el.scrollTo({ top: Math.max(0, node.offsetTop - 12), behavior: "smooth" });
+        return;
+      }
+    }
+    el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [messages, loading, transcribing]);
 
   // Stop audio and recording when leaving the tab.
@@ -247,150 +259,188 @@ export const AskAssistant: React.FC<AskAssistantProps> = ({ profile, voice }) =>
   };
 
   const prompts = [
-    `Can ${name} eat paneer butter masala?`,
-    `Is chole bhature okay for ${name}?`,
-    `Can ${name} have masala chai?`,
-    `What can ${name} have for breakfast?`,
-    `Suggest a healthy evening snack`,
+    { emoji: "🍛", text: `Can ${name} eat paneer butter masala?` },
+    { emoji: "🫓", text: `Is chole bhature okay for ${name}?` },
+    { emoji: "☕", text: `Can ${name} have masala chai?` },
+    { emoji: "🍳", text: `What can ${name} have for breakfast?` },
   ];
+
+  const resetChat = () => {
+    stopSpeech(audioRef.current);
+    setSpeakingId(null);
+    setMessages([]);
+    setContext({});
+    setNotice(null);
+  };
 
   const busy = loading || transcribing;
 
   return (
-    <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 shadow-sm transition-colors">
-      <div className="p-4 sm:p-6 border-b border-stone-100 dark:border-stone-800">
-        <h3 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-          <MessageCircleQuestion className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-          <span>Ask: Can {name} eat this?</span>
-        </h3>
-        <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-          Type, speak, or snap a photo. Answers are checked against {name}&apos;s profile and can be read aloud.
-        </p>
-      </div>
+    <div className="flex min-h-0 flex-1 flex-col">
+      {/* Conversation: the only scrolling area in this view */}
+      <div ref={listRef} className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain" aria-live="polite">
+        <div className="mx-auto w-full max-w-3xl px-4 py-5 sm:py-8 space-y-4">
+          {messages.length === 0 ? (
+            <div className="space-y-6 pt-2 sm:pt-6">
+              <div>
+                <h1 className="font-display text-[1.7rem] leading-tight sm:text-4xl font-semibold text-stone-900 dark:text-stone-50">
+                  Can {name} eat this?
+                </h1>
+                <p className="mt-2 text-[15px] text-stone-600 dark:text-stone-300">
+                  Ask about any dish. Type it, say it, or snap a photo, and I&apos;ll check it against {name}&apos;s needs.
+                </p>
+              </div>
 
-      {/* Conversation */}
-      <div
-        ref={listRef}
-        className="max-h-[60vh] min-h-[220px] overflow-y-auto p-4 sm:p-6 space-y-4"
-        aria-live="polite"
-      >
-        {messages.length === 0 && (
-          <div className="space-y-3">
-            <p className="text-sm text-stone-600 dark:text-stone-300">Try one of these:</p>
-            <div className="flex flex-wrap gap-2">
-              {prompts.map((p) => (
-                <button
-                  key={p}
-                  onClick={() => send(p)}
-                  disabled={busy}
-                  className="text-left text-xs sm:text-sm px-3 py-2 rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:border-emerald-500 dark:hover:border-emerald-500 transition-colors cursor-pointer disabled:opacity-50"
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+              <button
+                onClick={onOpenProfile}
+                className="block w-full text-left rounded-2xl border border-stone-200 dark:border-stone-800 bg-white/70 dark:bg-stone-900/70 p-3.5 hover:border-emerald-400 dark:hover:border-emerald-700 transition-colors cursor-pointer"
+              >
+                <span className="flex items-center justify-between text-xs font-medium text-stone-500 dark:text-stone-400">
+                  Checking for {name}
+                  <span className="text-emerald-700 dark:text-emerald-400">View</span>
+                </span>
+                <span className="mt-2 flex flex-wrap gap-1.5">
+                  {profile.allergies.map((a, i) => (
+                    <ConditionChip key={`${a.name}-${i}`} item={a} />
+                  ))}
+                </span>
+              </button>
 
-        {messages.map((m) =>
-          m.role === "user" ? (
-            <div key={m.id} className="flex justify-end">
-              <div className="max-w-[85%] rounded-2xl rounded-br-md bg-emerald-600 text-white px-4 py-2.5 text-sm">
-                {m.image && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={m.image} alt="Food photo" className="mb-2 h-24 w-24 rounded-lg object-cover" />
-                )}
-                <span>{m.text}</span>
-                {m.viaVoice && <Mic className="inline h-3 w-3 ml-1.5 opacity-75" aria-label="asked by voice" />}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {prompts.map((p) => (
+                  <button
+                    key={p.text}
+                    onClick={() => send(p.text)}
+                    disabled={busy}
+                    className="flex items-center gap-3 rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 px-4 py-3.5 text-left text-sm text-stone-800 dark:text-stone-200 shadow-sm shadow-stone-200/40 dark:shadow-none hover:border-emerald-400 dark:hover:border-emerald-700 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    <span className="text-xl" aria-hidden>
+                      {p.emoji}
+                    </span>
+                    <span>{p.text}</span>
+                  </button>
+                ))}
               </div>
             </div>
           ) : (
-            <AssistantBubble
-              key={m.id}
-              message={m}
-              speaking={speakingId === m.id}
-              voiceLoading={voiceLoadingId === m.id}
-              onSpeak={() => speak(m.id, m.text)}
-            />
-          ),
-        )}
+            <div className="flex justify-end">
+              <button
+                onClick={resetChat}
+                className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium text-stone-500 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
+              >
+                <RotateCcw className="h-3.5 w-3.5" /> New chat
+              </button>
+            </div>
+          )}
 
-        {busy && (
-          <div className="flex items-center gap-2 text-xs text-stone-500 dark:text-stone-400">
-            <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-            <span>{transcribing ? "Listening back to your question..." : "Checking..."}</span>
-          </div>
-        )}
+          {messages.map((m) =>
+            m.role === "user" ? (
+              <div key={m.id} data-msg={m.id} className="flex justify-end">
+                <div className="max-w-[85%] rounded-3xl rounded-br-lg bg-emerald-700 text-white px-4 py-2.5 text-[15px] leading-relaxed">
+                  {m.image && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={m.image} alt="Food photo" className="mb-2 h-28 w-28 rounded-2xl object-cover" />
+                  )}
+                  <span>{m.text}</span>
+                  {m.viaVoice && <Mic className="inline h-3.5 w-3.5 ml-1.5 opacity-75" aria-label="asked by voice" />}
+                </div>
+              </div>
+            ) : (
+              <AssistantBubble
+                key={m.id}
+                id={m.id}
+                message={m}
+                speaking={speakingId === m.id}
+                voiceLoading={voiceLoadingId === m.id}
+                onSpeak={() => speak(m.id, m.text)}
+              />
+            ),
+          )}
+
+          {busy && (
+            <div className="flex items-center gap-2 text-sm text-stone-500 dark:text-stone-400">
+              <span className="flex gap-1" aria-hidden>
+                <span className="h-2 w-2 rounded-full bg-stone-400 animate-bounce [animation-delay:-0.3s]" />
+                <span className="h-2 w-2 rounded-full bg-stone-400 animate-bounce [animation-delay:-0.15s]" />
+                <span className="h-2 w-2 rounded-full bg-stone-400 animate-bounce" />
+              </span>
+              <span>{transcribing ? "Listening back..." : "Checking..."}</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Input */}
-      <div className="border-t border-stone-100 dark:border-stone-800 p-3 sm:p-4 space-y-2">
-        {notice && (
-          <div className="flex items-start gap-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-3 py-2 text-xs text-amber-900 dark:text-amber-200">
-            <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-            <span>{notice}</span>
-          </div>
-        )}
-        {context.pending_dish && !busy && (
-          <p className="text-xs text-stone-500 dark:text-stone-400">
-            Tell me what&apos;s in <strong>{context.pending_dish}</strong>, separated by commas.
-          </p>
-        )}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            void send(input);
-          }}
-          className="flex items-center gap-2"
-        >
-          <button
-            type="button"
-            onClick={() => setCameraOpen(true)}
-            disabled={busy || recording}
-            aria-label="Check a food photo"
-            title="Check a food photo"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors cursor-pointer disabled:opacity-50"
+      {/* Composer: pinned to the bottom of the view */}
+      <div className="shrink-0 border-t border-stone-200/80 dark:border-stone-800 bg-[var(--background)]/90 backdrop-blur-md">
+        <div className="mx-auto w-full max-w-3xl px-3 sm:px-4 pt-2.5 pb-2.5 space-y-2">
+          {notice && (
+            <div className="flex items-start gap-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 px-3 py-2 text-xs text-amber-900 dark:text-amber-200">
+              <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+              <span>{notice}</span>
+            </div>
+          )}
+          {context.pending_dish && !busy && (
+            <p className="px-1 text-xs text-stone-500 dark:text-stone-400">
+              List what&apos;s in <strong>{context.pending_dish}</strong>, separated by commas.
+            </p>
+          )}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void send(input);
+            }}
+            className="flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 p-1.5 shadow-sm focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20"
           >
-            <Camera className="h-5 w-5" />
-          </button>
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            maxLength={1000}
-            placeholder={recording ? "Listening... tap stop when done" : `Ask about a dish for ${name}...`}
-            aria-label="Your question"
-            disabled={recording}
-            className="min-w-0 flex-1 h-11 rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 px-3.5 text-base sm:text-sm text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:border-emerald-500 focus:outline-none"
-          />
-          {voiceMode !== "none" && (
             <button
               type="button"
-              onClick={recording ? stopRecording : startRecording}
-              disabled={busy}
-              aria-label={recording ? "Stop recording" : "Ask by voice"}
-              title={recording ? "Stop recording" : "Ask by voice"}
-              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-colors cursor-pointer disabled:opacity-50 ${
-                recording
-                  ? "bg-rose-600 text-white animate-pulse"
-                  : "border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700"
-              }`}
+              onClick={() => setCameraOpen(true)}
+              disabled={busy || recording}
+              aria-label="Check a food photo"
+              title="Check a food photo"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer disabled:opacity-50"
             >
-              {recording ? <Square className="h-4 w-4 fill-current" /> : <Mic className="h-5 w-5" />}
+              <Camera className="h-5 w-5" />
             </button>
-          )}
-          <button
-            type="submit"
-            disabled={busy || recording || !input.trim()}
-            aria-label="Send"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition-colors cursor-pointer disabled:opacity-50"
-          >
-            <Send className="h-4 w-4" />
-          </button>
-        </form>
-        <p className="text-[11px] text-stone-400 dark:text-stone-500">
-          General food guidance, not medical advice. For thyroid and gut issues, follow {name}&apos;s doctor or dietitian.
-        </p>
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              maxLength={1000}
+              placeholder={recording ? "Listening... tap stop when done" : "Ask about a dish..."}
+              aria-label="Your question"
+              disabled={recording}
+              enterKeyHint="send"
+              className="min-w-0 flex-1 bg-transparent px-1 text-[15px] text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none"
+            />
+            {voiceMode !== "none" && (
+              <button
+                type="button"
+                onClick={recording ? stopRecording : startRecording}
+                disabled={busy}
+                aria-label={recording ? "Stop recording" : "Ask by voice"}
+                title={recording ? "Stop recording" : "Ask by voice"}
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors cursor-pointer disabled:opacity-50 ${
+                  recording
+                    ? "bg-rose-600 text-white animate-pulse"
+                    : "text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800"
+                }`}
+              >
+                {recording ? <Square className="h-4 w-4 fill-current" /> : <Mic className="h-5 w-5" />}
+              </button>
+            )}
+            <button
+              type="submit"
+              disabled={busy || recording || !input.trim()}
+              aria-label="Send"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-white hover:bg-emerald-800 transition-colors cursor-pointer disabled:bg-stone-300 dark:disabled:bg-stone-700"
+            >
+              <ArrowUp className="h-5 w-5" />
+            </button>
+          </form>
+          <p className="px-1 text-center text-[11px] text-stone-400 dark:text-stone-500">
+            General guidance, not medical advice.
+          </p>
+        </div>
       </div>
 
       <CameraScannerModal
@@ -404,11 +454,13 @@ export const AskAssistant: React.FC<AskAssistantProps> = ({ profile, voice }) =>
 };
 
 function AssistantBubble({
+  id,
   message,
   speaking,
   voiceLoading,
   onSpeak,
 }: {
+  id: number;
   message: Extract<ChatMessage, { role: "assistant" }>;
   speaking: boolean;
   voiceLoading: boolean;
@@ -419,12 +471,12 @@ function AssistantBubble({
   const VerdictIcon = verdict?.icon;
 
   return (
-    <div className="flex justify-start">
+    <div data-msg={id} className="flex justify-start">
       <div
-        className={`max-w-[92%] sm:max-w-[85%] rounded-2xl rounded-bl-md border px-4 py-3 text-sm space-y-3 ${
+        className={`w-full sm:max-w-[90%] rounded-3xl rounded-bl-lg border px-4 py-3.5 text-[15px] space-y-3.5 shadow-sm shadow-stone-200/40 dark:shadow-none ${
           message.isError
-            ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-200"
-            : "bg-stone-50 dark:bg-stone-800/70 border-stone-200 dark:border-stone-700 text-stone-800 dark:text-stone-100"
+            ? "bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-900 text-rose-900 dark:text-rose-200"
+            : "bg-white dark:bg-stone-900 border-stone-200/80 dark:border-stone-800 text-stone-800 dark:text-stone-100"
         }`}
       >
         {verdict && VerdictIcon && (
@@ -437,8 +489,8 @@ function AssistantBubble({
 
         {r && r.concerns.length > 0 && (
           <div>
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-1">Why</h4>
-            <ul className="list-disc pl-5 space-y-0.5 text-xs text-stone-700 dark:text-stone-300">
+            <h4 className="text-xs font-semibold text-stone-500 dark:text-stone-400 mb-1.5">Why</h4>
+            <ul className="list-disc pl-5 space-y-1 text-sm text-stone-700 dark:text-stone-300">
               {r.concerns.map((c) => (
                 <li key={c}>{c}</li>
               ))}
@@ -448,10 +500,10 @@ function AssistantBubble({
 
         {r && r.swaps.length > 0 && (
           <div>
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-1">Easy swaps</h4>
-            <ul className="space-y-1 text-xs">
+            <h4 className="text-xs font-semibold text-stone-500 dark:text-stone-400 mb-1.5">Easy swaps</h4>
+            <ul className="space-y-1.5 text-sm">
               {r.swaps.map((s) => (
-                <li key={s.ingredient} className="flex flex-wrap items-center gap-1.5">
+                <li key={s.ingredient} className="flex flex-wrap items-center gap-1.5 rounded-xl bg-emerald-50/70 dark:bg-emerald-950/30 px-3 py-2">
                   <span className="text-stone-500 dark:text-stone-400 line-through">{s.ingredient}</span>
                   <ArrowRight className="h-3 w-3 text-emerald-600 shrink-0" />
                   <span className="font-semibold text-emerald-800 dark:text-emerald-300">{s.swap}</span>
@@ -463,12 +515,12 @@ function AssistantBubble({
 
         {r && r.suggestions.length > 0 && (
           <div>
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-1">
+            <h4 className="text-xs font-semibold text-stone-500 dark:text-stone-400 mb-1.5">
               {r.verdict ? "Better options" : "Ideas"}
             </h4>
             <ul className="space-y-1.5">
               {r.suggestions.map((s) => (
-                <li key={s.title} className="flex items-start gap-2 text-xs">
+                <li key={s.title} className="flex items-start gap-2 text-sm">
                   <Utensils className="h-3.5 w-3.5 mt-0.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>
                     <strong className="text-stone-900 dark:text-stone-100">{s.title}</strong>
@@ -483,7 +535,7 @@ function AssistantBubble({
         {r && r.tips.length > 0 && (
           <ul className="space-y-1">
             {r.tips.map((t) => (
-              <li key={t} className="flex items-start gap-2 text-xs text-stone-600 dark:text-stone-400">
+              <li key={t} className="flex items-start gap-2 text-sm text-stone-600 dark:text-stone-400">
                 <Lightbulb className="h-3.5 w-3.5 mt-0.5 text-amber-500 shrink-0" />
                 <span>{t}</span>
               </li>
@@ -492,7 +544,7 @@ function AssistantBubble({
         )}
 
         {r && r.assumed_ingredients.length > 0 && (
-          <p className="text-[11px] text-stone-500 dark:text-stone-400">
+          <p className="text-xs text-stone-500 dark:text-stone-400">
             Typical ingredients assumed: {r.assumed_ingredients.join(", ")}.
           </p>
         )}
@@ -501,7 +553,7 @@ function AssistantBubble({
           <button
             onClick={onSpeak}
             disabled={voiceLoading}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-purple-700 dark:text-purple-300 hover:underline cursor-pointer disabled:opacity-60"
+            className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 dark:border-stone-700 px-3 py-1.5 text-xs font-semibold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 cursor-pointer disabled:opacity-60"
           >
             {voiceLoading ? (
               <RefreshCw className="h-3.5 w-3.5 animate-spin" />

@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { createLocalStore, useLocalStore } from "../lib/store";
 import { UserProfile } from "../types";
-import { NotebookPen, Send, Trash2, ThumbsUp, ThumbsDown, Meh } from "lucide-react";
+import { Send, Trash2, ThumbsUp, ThumbsDown, Meh } from "lucide-react";
 
 interface HandoverFeedbackProps {
   profile: UserProfile;
@@ -59,16 +59,8 @@ export const HandoverFeedback: React.FC<HandoverFeedbackProps> = ({ profile }) =
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-6 shadow-sm transition-colors">
-        <h3 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-          <NotebookPen className="h-5 w-5 text-rose-500" />
-          <span>Food notes for {profile.name}</span>
-        </h3>
-        <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-          Keep track of what {profile.name} enjoyed and what didn&apos;t sit well, so next time is easier. Notes stay in this browser.
-        </p>
-
-        <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+      <div className="rounded-3xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-6 shadow-sm shadow-stone-200/40 dark:shadow-none transition-colors">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <input
             type="text"
             value={dish}
@@ -89,7 +81,7 @@ export const HandoverFeedback: React.FC<HandoverFeedbackProps> = ({ profile }) =
                   role="radio"
                   aria-checked={active}
                   onClick={() => setReaction(r.value)}
-                  className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+                  className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors cursor-pointer ${
                     active ? r.cls : "border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"
                   }`}
                 >
@@ -112,7 +104,7 @@ export const HandoverFeedback: React.FC<HandoverFeedbackProps> = ({ profile }) =
             <button
               type="submit"
               disabled={!dish.trim() && !text.trim()}
-              className="flex items-center gap-1.5 rounded-lg bg-stone-900 dark:bg-stone-100 px-3.5 py-2 text-xs font-bold text-white dark:text-stone-900 hover:bg-stone-800 dark:hover:bg-white transition-colors cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-full bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800 transition-colors cursor-pointer disabled:opacity-50"
             >
               <Send className="h-3.5 w-3.5" /> Save note
             </button>
@@ -132,7 +124,7 @@ export const HandoverFeedback: React.FC<HandoverFeedbackProps> = ({ profile }) =
             return (
               <div
                 key={n.id}
-                className="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 text-xs"
+                className="rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 text-sm"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">

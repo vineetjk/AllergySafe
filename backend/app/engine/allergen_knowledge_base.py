@@ -100,7 +100,10 @@ ALLERGEN_TAXONOMY = {
         "canonical_name": "Lactose / Dairy",
         "keywords": [
             "dairy", "milk", "cheese", "butter", "cream", "lactose", "yogurt",
-            "casein", "caseinate", "whey", "curds", "lactalbumin"
+            "casein", "caseinate", "whey", "curds", "lactalbumin",
+            "paneer", "curd", "dahi", "malai", "khoa", "khoya", "mawa",
+            "lassi", "raita", "kheer", "rabri", "rasmalai", "chaas",
+            "shrikhand", "kulfi", "milkshake"
         ],
         "derivatives": [
             "buttermilk", "sour cream", "ghee", "clarified butter",
@@ -108,10 +111,7 @@ ALLERGEN_TAXONOMY = {
             "custard", "parmesan", "cheddar", "mozzarella", "ricotta",
             "brie", "gouda", "feta", "heavy cream", "half-and-half",
             "ice cream", "gelato", "caramel", "dulce de leche",
-            "paneer", "curd", "dahi", "malai", "khoa", "khoya", "mawa",
-            "lassi", "raita", "kheer", "rabri", "rasmalai", "rasgulla",
-            "chaas", "makhani", "shrikhand", "kulfi", "milkshake", "latte",
-            "cappuccino"
+            "makhani", "rasgulla", "latte", "cappuccino"
         ],
         # Removed from the text before matching, so "peanut butter" or
         # "coconut milk" is not mistaken for dairy.
