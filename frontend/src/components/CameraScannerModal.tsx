@@ -60,6 +60,30 @@ function samplePicture(emoji: string, label: string): string {
   return canvas.toDataURL("image/jpeg");
 }
 
+function isPermissionError(err: unknown): boolean {
+  const name = err instanceof DOMException ? err.name : "";
+  return name === "NotAllowedError" || name === "SecurityError";
+}
+
+// Turns a getUserMedia failure into a message that says what to do about it.
+function cameraErrorMessage(err: unknown): string {
+  const name = err instanceof DOMException ? err.name : "";
+  if (name === "NotAllowedError" || name === "SecurityError") {
+    return (
+      "Camera permission is blocked for this site. Tap the icon next to the address bar (or open your browser's " +
+      "site settings), set Camera to Allow, then tap Try again. On iPhone, also check Settings > Safari > Camera. " +
+      "If you opened this link inside WhatsApp, Instagram, or another app, open it in Safari or Chrome instead."
+    );
+  }
+  if (name === "NotFoundError" || name === "OverconstrainedError") {
+    return "No camera was found on this device. Use photo upload instead.";
+  }
+  if (name === "NotReadableError" || name === "AbortError") {
+    return "The camera is busy in another app or tab. Close it there, then tap Try again.";
+  }
+  return `The camera couldn't start${name ? ` (${name})` : ""}. Tap Try again, or use photo upload.`;
+}
+
 export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
   isOpen,
   onClose,
@@ -72,6 +96,8 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
+  // Bumped by "Try again" to ask for the camera again after the user changes a setting.
+  const [cameraAttempt, setCameraAttempt] = useState(0);
   const [dishName, setDishName] = useState("");
   const [problem, setProblem] = useState<string | null>(null);
 
@@ -101,6 +127,10 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
     let cancelled = false;
     navigator.mediaDevices
       .getUserMedia({ video: { facingMode, width: { ideal: 1280 }, height: { ideal: 720 } } })
+      // Some phones and laptops reject the preferred size or lens; any camera will do.
+      .catch((err: unknown) =>
+        isPermissionError(err) ? Promise.reject(err) : navigator.mediaDevices.getUserMedia({ video: true })
+      )
       .then(async (stream) => {
         if (cancelled) {
           stream.getTracks().forEach((t) => t.stop());
@@ -114,9 +144,9 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
         setCameraError(null);
         setCameraActive(true);
       })
-      .catch(() => {
+      .catch((err: unknown) => {
         if (!cancelled) {
-          setCameraError("Camera access was blocked or unavailable. Allow camera access in your browser settings, or use photo upload.");
+          setCameraError(cameraErrorMessage(err));
           setCameraActive(false);
         }
       });
@@ -124,7 +154,7 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
       cancelled = true;
       releaseStream();
     };
-  }, [wantCamera, facingMode]);
+  }, [wantCamera, facingMode, cameraAttempt]);
 
   const stopCamera = () => {
     releaseStream();
@@ -305,13 +335,27 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
                 <div className="rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 p-5 text-center">
                   <AlertTriangle className="h-7 w-7 text-amber-600 mx-auto mb-2" />
                   <p className="text-xs text-amber-800 dark:text-amber-300">{cameraUnsupported || cameraError}</p>
-                  <button
-                    onClick={() => setActiveTab("upload")}
-                    className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-700 text-white text-xs font-bold hover:bg-amber-800 cursor-pointer"
-                  >
-                    <Upload className="h-3.5 w-3.5" />
-                    <span>Use photo upload</span>
-                  </button>
+                  <div className="mt-3 flex flex-wrap justify-center gap-2">
+                    {cameraError && !cameraUnsupported && (
+                      <button
+                        onClick={() => {
+                          setCameraError(null);
+                          setCameraAttempt((n) => n + 1);
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg border border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 text-xs font-bold hover:bg-amber-100 dark:hover:bg-amber-900/40 cursor-pointer"
+                      >
+                        <Camera className="h-3.5 w-3.5" />
+                        <span>Try again</span>
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setActiveTab("upload")}
+                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-700 text-white text-xs font-bold hover:bg-amber-800 cursor-pointer"
+                    >
+                      <Upload className="h-3.5 w-3.5" />
+                      <span>Use photo upload</span>
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="relative overflow-hidden rounded-2xl bg-black aspect-video flex items-center justify-center border border-stone-800">
