@@ -80,6 +80,8 @@ Every verdict comes from open, readable rules, not from a chatbot guessing.
 
 The app knows the typical ingredients of about 80 common Indian and international dishes. Recipes vary, so answers say which ingredients they assumed.
 
+For dishes it doesn't know, a local **Gemma 2 (2B)** model in Ollama suggests the typical ingredients, and the same rules decide the verdict. The model never decides what is safe, and the app shows what it guessed so it can be corrected. Without Ollama, the app asks for the ingredients instead.
+
 > This is general food guidance, not medical advice. Follow a doctor or dietitian for thyroid, gut, and weight concerns.
 
 ---
@@ -91,7 +93,7 @@ The app knows the typical ingredients of about 80 common Indian and internationa
 | Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS |
 | Backend | FastAPI (Python 3.11+) with a rule-based food engine |
 | Voice | ElevenLabs: Eleven v4 Turbo for speech and Scribe v2 for voice questions. Falls back to the browser's voice without a key. |
-| Optional | Ollama with a local vision model for photo recognition |
+| Open model (optional) | Gemma 2 2B in Ollama: suggests ingredients for unknown dishes. A local vision model (llava, minicpm-v) can also read food photos. |
 | Hosting | Render Blueprint (`render.yaml`) |
 | CI | GitHub Actions: backend tests on Python 3.11 to 3.13, and a frontend build |
 
@@ -111,10 +113,14 @@ backend/venv/bin/pip install -r backend/requirements.txt
 # Optional: voice. Add your ElevenLabs API key to backend/.env
 cp backend/.env.example backend/.env
 
+# Optional: local Gemma 2 for dishes the app doesn't know (about 1.6 GB)
+brew install ollama && ollama serve &
+ollama pull gemma2:2b
+
 ./start.sh
 ```
 
-Open http://localhost:3000. Voice input and the live camera need HTTPS, so test those on the deployed site.
+Open http://localhost:3000. Voice input and the live camera need HTTPS, so test those on the deployed site. The free Render plan doesn't have enough memory for Gemma, so the deployed site uses the rules only.
 
 Run the tests:
 
@@ -159,7 +165,7 @@ docs/
 
 ## Why open source
 
-- **Private:** profiles stay in the browser, and food checks don't use any third-party AI. ElevenLabs is used only for voice.
+- **Private:** profiles stay in the browser, Gemma runs on your own machine and only sees dish names, and food checks don't use any third-party AI. ElevenLabs is used only for voice.
 - **Checkable:** every verdict traces back to a rule anyone can read and fix.
 - **Self-hostable:** runs on a laptop with no paid AI service.
 - **Easy to extend:** anyone can add dishes, ingredients, or conditions.
