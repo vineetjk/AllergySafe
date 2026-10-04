@@ -32,7 +32,10 @@ Living with a roommate who has severe dietary restrictions (Celiac, anaphylaxis,
 
 ### Key Capabilities
 
+- **📸 Live Camera & Photo Food Scanning:** Take live camera snapshots or upload food photos of single ingredients or prepared full meals (pasta dishes, salads, packaged sauces) to immediately detect allergen hazards and receive clinical verdicts.
 - **🛡️ Instant Safety Scanner ("Can Maya Eat This?"):** Evaluates recipes, menus, or raw ingredients in <0.2s. Identifies sneaky derivatives (*maltodextrin, brewer's yeast, soy sauce, whey, panko*) and provides clinical rationale and hazard indices.
+- **🌓 Adaptive Light & Dark Themes:** Seamless, accessible dark and light mode UI with instant switching and local preference persistence.
+- **📱 100% Mobile-Friendly & Responsive:** Fluid responsive UI designed specifically for handheld phone use while shopping in store aisles or cooking in the kitchen.
 - **🍳 Recipe Remixer (Google Gemma 2):** Converts unsafe favorite dishes into 100% compliant gourmet meals using 1:1 culinary substitutions (tamari, sunflower seed creams, gluten-free baking blends) that preserve flavor, browning, and texture.
 - **🎙️ Hands-Free Voice Guide (ElevenLabs):** Reads sterile cooking steps and cross-contamination warnings aloud so the chef doesn't contaminate screens with dirty hands.
 - **📅 Co-Dining Meal Planner:** Generates multi-day shared dinner menus where both roommates eat the same meal with zero compromises, accompanied by an aisle-sorted supermarket checklist.
