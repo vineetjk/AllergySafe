@@ -34,6 +34,10 @@ It doesn't try to be a doctor. It's a friend who remembers all four of her rules
 
 ## Demo
 
+**Try it live: [allergysafe-table-web.onrender.com](https://allergysafe-table-web.onrender.com)**
+
+It's on Render's free plan, so the first visit can take up to a minute while the server wakes up. The hosted version runs the open food rules and ElevenLabs voice, but not Gemma (see [Where it runs](#where-it-runs) below), so for a dish outside its library it asks you for the ingredients. Try *"Can Prithvi eat paneer butter masala?"* or *"What can she have for breakfast?"*
+
 **Ask anything.** Her conditions are always visible, and the answer explains itself.
 
 ![Asking whether Prithvi can eat paneer butter masala](https://raw.githubusercontent.com/vineetjk/AllergySafe/main/docs/screenshots/desktop-ask.png)
@@ -108,7 +112,9 @@ That split is deliberate:
 
 A 2B model is wrong sometimes. It left the fried farsan off misal pav, and it thought malai kofta had meat. That's exactly why it doesn't get the final say. When Ollama isn't running, the app quietly falls back to asking her for the ingredients.
 
-**Where it runs:** Gemma runs on the same machine as the backend: a laptop on the same Wi-Fi, opened from a phone (`start.sh` prints the address to open). The free Render demo has only 512 MB of RAM, too little for Gemma, so **the hosted demo uses the rules only**. To get the Gemma step, run the app locally with the commands above.
+#### Where it runs
+
+Gemma runs on the same machine as the backend: a laptop on the same Wi-Fi, opened from a phone (`start.sh` prints the address to open). The free Render demo has only 512 MB of RAM, too little for Gemma, so **the [hosted demo](https://allergysafe-table-web.onrender.com) uses the rules only**. To get the Gemma step, run the app locally with the commands above.
 
 ### Indian food needed its own care
 

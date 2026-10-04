@@ -6,6 +6,8 @@ My friend Prithvi is sometimes lactose intolerant, has a sensitive gut, has high
 
 *Built for the Hacktoberfest Weekend Challenge: Build for a Friend (HF26).*
 
+**Live demo:** https://allergysafe-table-web.onrender.com (free Render plan, so the first visit can take up to a minute to wake up. The hosted version uses the rules only; Gemma runs when you run the app locally.)
+
 <p align="center">
   <img src="docs/screenshots/desktop-ask.png" alt="Asking whether Prithvi can eat paneer butter masala on desktop" width="900">
 </p>
