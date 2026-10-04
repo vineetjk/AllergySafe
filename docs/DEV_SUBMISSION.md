@@ -1,5 +1,5 @@
 ---
-title: AllergySafe Table: The Open-Source AI Co-Living Dining Guardian I Built for My Roommate
+title: "AllergySafe Table: The Open-Source AI Co-Living Dining Guardian I Built for My Roommate"
 published: false
 tags: devchallenge, weekendchallenge, hf26challenge, gemma, opensource
 ---
