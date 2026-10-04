@@ -120,7 +120,8 @@ export default function Home() {
           <AskAssistant profile={profile} voice={health?.voice ?? null} onOpenProfile={() => setProfileOpen(true)} />
         </main>
       ) : (
-        <main className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        // Keyed by tab so each tab gets a fresh scroll container that starts at the top.
+        <main key={activeTab} className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 sm:py-8">
             <div className="mb-5 sm:mb-6">
               <h1 className="font-display text-2xl sm:text-3xl font-semibold text-stone-900 dark:text-stone-50">
