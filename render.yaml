@@ -15,6 +15,13 @@ services:
         value: gemma2:2b
       - key: ENVIRONMENT
         value: production
+      # Set in the Render dashboard; never commit the key.
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ELEVENLABS_VOICE_ID
+        value: 21m00Tcm4TlvDq8ikWAM
+      - key: ELEVENLABS_MODEL
+        value: eleven_turbo_v2_5
 
   # 2. Next.js Frontend Web Application
   - type: web

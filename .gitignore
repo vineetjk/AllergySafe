@@ -14,3 +14,7 @@ frontend/out/
 # OS
 .DS_Store
 *.log
+
+# Secrets
+.env
+backend/.env

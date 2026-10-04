@@ -115,8 +115,8 @@ async def generate_voice_guide(req: VoiceGuideRequest):
         b64_audio = base64.b64encode(audio_bytes).decode("utf-8")
         return {
             "success": True,
-            "provider": "ElevenLabs Turbo v2.5",
-            "voice_name": "Rachel (Warm Chef Guide)",
+            "provider": f"ElevenLabs ({settings.ELEVENLABS_MODEL})",
+            "voice_name": "ElevenLabs Voice",
             "audio_base64": b64_audio,
             "script": script
         }

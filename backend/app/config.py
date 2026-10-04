@@ -1,5 +1,11 @@
 import os
+from pathlib import Path
+from dotenv import load_dotenv
 from pydantic import BaseModel
+
+# Load secrets from backend/.env for local runs. Real environment variables
+# (e.g. set in the Render dashboard) take precedence.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env", override=False)
 
 class Settings(BaseModel):
     PROJECT_NAME: str = "AllergySafe Table API"
@@ -15,6 +21,7 @@ class Settings(BaseModel):
     # Partner Integrations
     ELEVENLABS_API_KEY: str = os.getenv("ELEVENLABS_API_KEY", "")
     ELEVENLABS_VOICE_ID: str = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM") # Rachel (friendly chef voice)
+    ELEVENLABS_MODEL: str = os.getenv("ELEVENLABS_MODEL", "eleven_turbo_v2_5")
     SENTRY_DSN: str = os.getenv("SENTRY_DSN", "")
 
     CORS_ORIGINS: list[str] = [

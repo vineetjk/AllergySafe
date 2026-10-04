@@ -1,6 +1,9 @@
+import logging
 import httpx
 from typing import Optional, Dict, Any
 from app.config import settings
+
+logger = logging.getLogger("uvicorn.error")
 
 class VoiceService:
     @staticmethod
@@ -20,6 +23,7 @@ class VoiceService:
     async def synthesize_elevenlabs(text: str) -> Optional[bytes]:
         """Synthesize high-fidelity voice using ElevenLabs TTS API."""
         if not settings.ELEVENLABS_API_KEY:
+            logger.warning("ELEVENLABS_API_KEY is not set; voice guide will use the browser's built-in speech.")
             return None
 
         url = f"https://api.elevenlabs.io/v1/text-to-speech/{settings.ELEVENLABS_VOICE_ID}"
@@ -30,7 +34,7 @@ class VoiceService:
         }
         payload = {
             "text": text,
-            "model_id": "eleven_turbo_v2_5",
+            "model_id": settings.ELEVENLABS_MODEL,
             "voice_settings": {
                 "stability": 0.5,
                 "similarity_boost": 0.8
@@ -38,10 +42,11 @@ class VoiceService:
         }
 
         try:
-            async with httpx.AsyncClient(timeout=15.0) as client:
+            async with httpx.AsyncClient(timeout=25.0) as client:
                 res = await client.post(url, json=payload, headers=headers)
                 if res.status_code == 200:
                     return res.content
-        except Exception:
-            pass
+                logger.error("ElevenLabs TTS failed (HTTP %s): %s", res.status_code, res.text[:300])
+        except Exception as e:
+            logger.error("ElevenLabs TTS request error: %r", e)
         return None

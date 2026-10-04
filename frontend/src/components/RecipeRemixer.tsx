@@ -9,6 +9,9 @@ import {
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
+// 0.01s of silence, used to unlock audio playback on iOS.
+const SILENT_WAV = "data:audio/wav;base64,UklGRnQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==";
+
 interface RecipeRemixerProps {
   profile: UserProfile;
   initialDishTitle?: string;
@@ -90,6 +93,12 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
     if (!remixResult) return;
     setVoiceLoading(true);
 
+    // iOS Safari only lets audio play from a direct tap. Start a silent clip
+    // now, while we're still inside the tap, then reuse the same element for
+    // the ElevenLabs audio once the network request finishes.
+    const audio = new Audio(SILENT_WAV);
+    audio.play().catch(() => {});
+
     try {
       const res = await fetch(`${getApiBase()}/voice-guide`, {
         method: "POST",
@@ -105,7 +114,8 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
       setVoiceProvider(data.provider || "ElevenLabs Voice");
 
       if (data.audio_base64) {
-        const audio = new Audio(`data:audio/mpeg;base64,${data.audio_base64}`);
+        audio.pause();
+        audio.src = `data:audio/mpeg;base64,${data.audio_base64}`;
         audioRef.current = audio;
         audio.onended = () => setIsPlayingAudio(false);
         await audio.play();
