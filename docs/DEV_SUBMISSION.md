@@ -157,7 +157,7 @@ A closed API would have given me a clever chatbot that decides on its own what's
 ## Prize Categories
 
 - **Gemma:** Gemma 2 (2B), running locally through Ollama, works out the ingredients of dishes the app doesn't know, as validated JSON. The open food rules then decide the verdict, so the model fills in knowledge but never makes the safety call.
-- **Render:** the whole app ships as a Render Blueprint (`render.yaml`). It deploys the FastAPI backend and the Next.js frontend as two services, with the frontend proxying API calls to the backend.
+- **Render:** the whole app ships as a Render Blueprint (`render.yaml`) and is [live on Render](https://allergysafe-table-web.onrender.com). It deploys the FastAPI backend and the Next.js frontend as two services, with the frontend proxying API calls to the backend.
 - **ElevenLabs:** voice questions use ElevenLabs Scribe for speech-to-text, and answers and recipe steps are read aloud with Eleven v4 Turbo over the realtime websocket, with a Turbo v2.5 fallback.
 
 ---
