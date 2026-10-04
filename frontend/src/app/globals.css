@@ -27,3 +27,12 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+html, body, button, a, input, select, textarea {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  -webkit-touch-callout: none;
+}

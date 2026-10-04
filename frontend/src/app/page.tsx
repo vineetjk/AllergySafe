@@ -54,27 +54,42 @@ export default function Home() {
 
   // Theme synchronization with localStorage and documentElement
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const shouldBeDark = savedTheme === "dark" || (!savedTheme && systemPrefersDark);
+    try {
+      const savedTheme = typeof window !== "undefined" && window.localStorage ? localStorage.getItem("theme") : null;
+      const systemPrefersDark = typeof window !== "undefined" && typeof window.matchMedia === "function" 
+        ? window.matchMedia("(prefers-color-scheme: dark)").matches 
+        : false;
+      const shouldBeDark = savedTheme === "dark" || (!savedTheme && systemPrefersDark);
 
-    setIsDark(shouldBeDark);
-    if (shouldBeDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
+      setIsDark(shouldBeDark);
+      if (typeof document !== "undefined") {
+        if (shouldBeDark) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      }
+    } catch (e) {
+      console.warn("Theme synchronization safely bypassed on restricted mobile webview:", e);
     }
   }, []);
 
   const toggleTheme = () => {
     const nextDark = !isDark;
     setIsDark(nextDark);
-    if (nextDark) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
+    try {
+      if (typeof document !== "undefined") {
+        if (nextDark) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      }
+      if (typeof window !== "undefined" && window.localStorage) {
+        localStorage.setItem("theme", nextDark ? "dark" : "light");
+      }
+    } catch (e) {
+      console.warn("Theme persistence safely bypassed:", e);
     }
   };
 

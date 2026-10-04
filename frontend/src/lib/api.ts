@@ -5,11 +5,37 @@ import {
   MealPlanResponse
 } from "../types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+export function getApiBase(): string {
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    // When accessed from a mobile phone on the local Wi-Fi network (e.g. 192.168.x.x)
+    if (host && host !== "localhost" && host !== "127.0.0.1") {
+      return `http://${host}:8000/api`;
+    }
+  }
+  return "http://localhost:8000/api";
+}
+
+async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 3500): Promise<Response> {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    return response;
+  } finally {
+    clearTimeout(id);
+  }
+}
 
 export async function fetchHealth(): Promise<any> {
   try {
-    const res = await fetch(`${API_BASE}/health`, { cache: "no-store" });
+    const res = await fetchWithTimeout(`${getApiBase()}/health`, { cache: "no-store" }, 2500);
     if (!res.ok) throw new Error("Health check failed");
     return await res.json();
   } catch (err) {
@@ -28,7 +54,7 @@ export async function fetchHealth(): Promise<any> {
 
 export async function fetchProfile(): Promise<UserProfile> {
   try {
-    const res = await fetch(`${API_BASE}/profile`, { cache: "no-store" });
+    const res = await fetchWithTimeout(`${getApiBase()}/profile`, { cache: "no-store" }, 2500);
     if (!res.ok) throw new Error("Failed to fetch profile");
     return await res.json();
   } catch (err) {
@@ -65,11 +91,11 @@ export async function scanIngredients(
   dish_title?: string
 ): Promise<ScanResponse> {
   try {
-    const res = await fetch(`${API_BASE}/scan`, {
+    const res = await fetchWithTimeout(`${getApiBase()}/scan`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text, profile, dish_title })
-    });
+    }, 4000);
     if (!res.ok) throw new Error("Scan request failed");
     return await res.json();
   } catch (err) {
@@ -148,11 +174,11 @@ export async function remixRecipe(
   original_instructions?: string[]
 ): Promise<RecipeRemixResponse> {
   try {
-    const res = await fetch(`${API_BASE}/remix`, {
+    const res = await fetchWithTimeout(`${getApiBase()}/remix`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title, original_ingredients, original_instructions })
-    });
+    }, 4500);
     if (!res.ok) throw new Error("Remix request failed");
     return await res.json();
   } catch (err) {
@@ -185,11 +211,11 @@ export async function remixRecipe(
 
 export async function generateMealPlan(days: number = 3): Promise<MealPlanResponse> {
   try {
-    const res = await fetch(`${API_BASE}/meal-plan`, {
+    const res = await fetchWithTimeout(`${getApiBase()}/meal-plan`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ days })
-    });
+    }, 4500);
     if (!res.ok) throw new Error("Meal plan request failed");
     return await res.json();
   } catch (err) {
@@ -247,7 +273,7 @@ export async function scanImage(
   hintLabel?: string
 ): Promise<any> {
   try {
-    const res = await fetch(`${API_BASE}/scan-image`, {
+    const res = await fetchWithTimeout(`${getApiBase()}/scan-image`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -255,7 +281,7 @@ export async function scanImage(
         profile,
         hint_label: hintLabel
       })
-    });
+    }, 5000);
     if (!res.ok) throw new Error("Image scan request failed");
     return await res.json();
   } catch (err) {

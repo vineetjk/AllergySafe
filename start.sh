@@ -26,15 +26,17 @@ BACKEND_PID=$!
 sleep 2
 
 # 2. Start Next.js Frontend
-echo "✨ Starting Next.js Frontend on http://localhost:3000..."
+LAN_IP=$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}' || echo "localhost")
+echo "✨ Starting Next.js Frontend (accessible on laptop & mobile devices)..."
 cd "$DIR/frontend"
 npm run dev &
 FRONTEND_PID=$!
 
 echo ""
 echo "✅ Both services running!"
-echo "   • Frontend: http://localhost:3000"
-echo "   • Backend API Docs: http://localhost:8000/docs"
+echo "   • Laptop / Desktop: http://localhost:3000"
+echo "   • Mobile Phone (same Wi-Fi): http://${LAN_IP}:3000"
+echo "   • Backend API Docs: http://${LAN_IP}:8000/docs"
 echo "Press CTRL+C to terminate both servers."
 echo ""
 
