@@ -5,6 +5,7 @@ import { AskContext, AskResponse, HealthResponse, ImageScanResult, UserProfile }
 import { askQuestion, errorMessage, speakText, transcribeAudio } from "../lib/api";
 import { createUnlockedAudio, playVoice, stopSpeech } from "../lib/audio";
 import { useClientValue } from "../lib/store";
+import { spokenAnswer } from "../lib/speech";
 import { CameraScannerModal } from "./CameraScannerModal";
 import { ConditionChip } from "./ProfileSheet";
 import {
@@ -37,6 +38,7 @@ function getSpeechRecognition(): AnyRecognition | null {
 }
 
 const MAX_RECORDING_MS = 20_000;
+
 
 const VERDICT_STYLE = {
   SAFE: {
@@ -153,7 +155,7 @@ export const AskAssistant: React.FC<AskAssistantProps> = ({ profile, voice, onOp
       const id = push({ role: "assistant", text: res.reply, response: res });
       if (opts.viaVoice && voice?.text_to_speech) {
         // Reuse the element unlocked when the mic was tapped.
-        void speak(id, res.reply, audioRef.current ?? undefined);
+        void speak(id, spokenAnswer(res), audioRef.current ?? undefined);
       }
     } catch (err) {
       push({ role: "assistant", text: errorMessage(err), isError: true });
@@ -352,7 +354,7 @@ export const AskAssistant: React.FC<AskAssistantProps> = ({ profile, voice, onOp
                 message={m}
                 speaking={speakingId === m.id}
                 voiceLoading={voiceLoadingId === m.id}
-                onSpeak={() => speak(m.id, m.text)}
+                onSpeak={() => speak(m.id, m.response ? spokenAnswer(m.response) : m.text)}
               />
             ),
           )}

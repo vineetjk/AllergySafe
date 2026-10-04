@@ -35,7 +35,7 @@ class VoiceGuideRequest(BaseModel):
 
 
 class SpeakRequest(BaseModel):
-    text: str = Field(..., min_length=1, max_length=700)
+    text: str = Field(..., min_length=1, max_length=1500)
 
 
 def _voice_payload(audio_bytes: Optional[bytes], script: str) -> dict:

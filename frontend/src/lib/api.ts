@@ -113,7 +113,7 @@ export function requestVoiceGuide(title: string, steps: string[], name: string):
 }
 
 export function speakText(text: string): Promise<VoiceResponse> {
-  return postJson<VoiceResponse>("/speak", { text: text.slice(0, 700) });
+  return postJson<VoiceResponse>("/speak", { text: text.slice(0, 1500) });
 }
 
 export async function transcribeAudio(audio: Blob): Promise<string> {
