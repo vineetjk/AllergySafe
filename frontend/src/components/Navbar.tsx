@@ -18,30 +18,33 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-stone-200 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 backdrop-blur-md transition-colors">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm shadow-emerald-200 dark:shadow-none">
-            <ShieldAlert className="h-6 w-6" />
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3">
+        {/* Brand */}
+        <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm shadow-emerald-200 dark:shadow-none">
+            <ShieldAlert className="h-5 w-5 sm:h-6 sm:w-6" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100">AllergySafe Table</span>
-              <span className="rounded-full bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800">
-                HF26 Challenge
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="text-base sm:text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100 truncate">
+                AllergySafe Table
+              </span>
+              <span className="hidden sm:inline-flex rounded-full bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800 shrink-0">
+                HF26
               </span>
             </div>
-            <p className="text-xs text-stone-500 dark:text-stone-400 flex items-center gap-1.5">
-              <span>Co-Living Dining & Food Safety</span>
-              <span>•</span>
-              <span className="font-medium text-stone-700 dark:text-stone-300 flex items-center gap-1">
-                <HeartHandshake className="h-3 w-3 text-rose-500 inline" /> Built for Maya
+            <p className="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 flex items-center gap-1 truncate">
+              <span className="hidden xs:inline">Food Safety</span>
+              <span className="hidden xs:inline">•</span>
+              <span className="font-medium text-stone-700 dark:text-stone-300 flex items-center gap-1 truncate">
+                <HeartHandshake className="h-3 w-3 text-rose-500 shrink-0 inline" /> Built for Maya
               </span>
             </p>
           </div>
         </div>
 
-        {/* Partner tech pill list */}
-        <div className="hidden xl:flex items-center gap-2">
+        {/* Partner badges on larger screens */}
+        <div className="hidden xl:flex items-center gap-2 shrink-0">
           <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 dark:bg-blue-950/60 px-2.5 py-0.5 text-[10px] font-bold text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
             <Cpu className="h-3 w-3 text-blue-600" /> Google Gemma 2
           </span>
@@ -56,9 +59,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           </span>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        {/* Right actions */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           {/* Engine status indicator */}
-          <div className="hidden md:flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800 px-3 py-1 text-xs text-stone-600 dark:text-stone-300">
+          <div className="hidden lg:flex items-center gap-2 rounded-full border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-800 px-3 py-1 text-xs text-stone-600 dark:text-stone-300">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -70,7 +74,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={onToggleTheme}
             aria-label="Toggle Light/Dark Theme"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors shadow-2xs cursor-pointer"
+            className="flex h-9 w-9 items-center justify-center rounded-xl border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors shadow-2xs cursor-pointer shrink-0"
           >
             {isDark ? (
               <Sun className="h-4 w-4 text-amber-400" />
@@ -82,10 +86,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Why Open AI Modal Trigger */}
           <button
             onClick={onOpenWhyModal}
-            className="flex items-center gap-1.5 rounded-xl border border-emerald-600 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 px-3.5 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors shadow-2xs cursor-pointer"
+            className="flex items-center gap-1.5 rounded-xl border border-emerald-600 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 sm:px-3.5 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900 transition-colors shadow-2xs cursor-pointer shrink-0"
           >
             <Sparkles className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>Why Open AI?</span>
+            <span className="hidden sm:inline">Why Open AI?</span>
+            <span className="sm:hidden">Why AI?</span>
           </button>
         </div>
       </div>

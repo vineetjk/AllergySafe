@@ -38,35 +38,37 @@ export const RoommateBanner: React.FC<RoommateBannerProps> = ({ profile, onUpdat
   };
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-gradient-to-r from-amber-50/60 via-stone-50 to-emerald-50/50 dark:from-stone-900 dark:via-stone-900/90 dark:to-emerald-950/30 p-5 shadow-sm transition-colors">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="relative overflow-hidden rounded-2xl border border-stone-200/80 dark:border-stone-800 bg-gradient-to-r from-amber-50/60 via-stone-50 to-emerald-50/50 dark:from-stone-900 dark:via-stone-900/90 dark:to-emerald-950/30 p-4 sm:p-5 shadow-sm transition-colors">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
         {/* Left: Persona info */}
-        <div className="flex items-start sm:items-center gap-4">
-          <div className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white font-bold text-xl shadow-md shadow-emerald-200 dark:shadow-none">
+        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+          <div className="relative flex h-12 w-12 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white font-bold text-lg sm:text-xl shadow-md shadow-emerald-200 dark:shadow-none">
             {profile.name.charAt(0)}
             <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] text-white ring-2 ring-white dark:ring-stone-900">
               <Heart className="h-3 w-3 fill-current" />
             </span>
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-stone-900 dark:text-stone-100 tracking-tight">Cooking for {profile.name}</h2>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-stone-200/70 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-medium">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <h2 className="text-base sm:text-lg font-bold text-stone-900 dark:text-stone-100 tracking-tight truncate">
+                Cooking for {profile.name}
+              </h2>
+              <span className="text-[10px] sm:text-xs px-2 py-0.5 rounded-full bg-stone-200/70 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-medium shrink-0">
                 {profile.relationship}
               </span>
             </div>
-            <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-              Personalized co-living dining profile • Real-time allergen guardrails active
+            <p className="text-[11px] sm:text-xs text-stone-500 dark:text-stone-400 mt-0.5 truncate">
+              Personalized co-living profile • Allergen guardrails active
             </p>
           </div>
         </div>
 
         {/* Right: Allergen Badges + Edit Button */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
           {profile.allergies.map((allergy, idx) => (
             <div
               key={idx}
-              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold shadow-xs ${
+              className={`flex items-center gap-1 rounded-lg px-2 sm:px-2.5 py-1 text-[11px] sm:text-xs font-semibold shadow-xs ${
                 allergy.severity === "anaphylactic"
                   ? "bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-200 border border-rose-200 dark:border-rose-900/60"
                   : allergy.severity === "severe"
@@ -76,15 +78,15 @@ export const RoommateBanner: React.FC<RoommateBannerProps> = ({ profile, onUpdat
             >
               <AlertTriangle className="h-3 w-3 shrink-0" />
               <span>{allergy.name}</span>
-              <span className="text-[10px] uppercase tracking-wider opacity-75 font-mono">
-                ({allergy.severity})
+              <span className="text-[9px] uppercase tracking-wider opacity-75 font-mono">
+                ({allergy.severity.slice(0, 4)})
               </span>
             </div>
           ))}
 
           <button
             onClick={() => setIsEditing(!isEditing)}
-            className="flex items-center gap-1 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 px-2.5 py-1 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors shadow-2xs cursor-pointer ml-1"
+            className="flex items-center gap-1 rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-800 px-2.5 py-1 text-xs font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-700 transition-colors shadow-2xs cursor-pointer"
           >
             <Settings className="h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />
             <span>{isEditing ? "Close" : "Edit Profile"}</span>
@@ -94,11 +96,11 @@ export const RoommateBanner: React.FC<RoommateBannerProps> = ({ profile, onUpdat
 
       {/* Expandable Edit Drawer */}
       {isEditing && (
-        <div className="mt-4 pt-4 border-t border-stone-200/70 dark:border-stone-800 bg-white/70 dark:bg-stone-800/80 p-4 rounded-xl">
+        <div className="mt-4 pt-4 border-t border-stone-200/70 dark:border-stone-800 bg-white/70 dark:bg-stone-800/80 p-3.5 sm:p-4 rounded-xl">
           <h3 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-3">
             Modify Roommate Medical & Dietary Profile
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
             <div>
               <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">Friend / Roommate Name</label>
               <input
@@ -121,7 +123,7 @@ export const RoommateBanner: React.FC<RoommateBannerProps> = ({ profile, onUpdat
 
           <div className="mt-3">
             <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">Active Allergies & Conditions</label>
-            <div className="flex flex-wrap gap-2 mb-2">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2">
               {allergies.map((all, i) => (
                 <span
                   key={i}
@@ -135,30 +137,32 @@ export const RoommateBanner: React.FC<RoommateBannerProps> = ({ profile, onUpdat
               ))}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <input
                 type="text"
                 placeholder="e.g. Shellfish, Sesame, Nightshades"
                 value={newAllergenName}
                 onChange={(e) => setNewAllergenName(e.target.value)}
-                className="text-xs rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 px-3 py-1.5 flex-1 focus:border-emerald-500 focus:outline-none"
+                className="text-xs rounded-lg border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 px-3 py-2 flex-1 focus:border-emerald-500 focus:outline-none"
               />
-              <select
-                value={newSeverity}
-                onChange={(e) => setNewSeverity(e.target.value as any)}
-                className="text-xs rounded-lg border border-stone-300 dark:border-stone-700 px-2 py-1.5 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 focus:outline-none"
-              >
-                <option value="anaphylactic">Anaphylactic (EpiPen)</option>
-                <option value="severe">Severe / Celiac</option>
-                <option value="moderate">Moderate</option>
-                <option value="intolerance">Intolerance</option>
-              </select>
-              <button
-                onClick={handleAddAllergen}
-                className="flex items-center gap-1 bg-stone-800 dark:bg-stone-700 text-white rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-stone-700"
-              >
-                <Plus className="h-3.5 w-3.5" /> Add
-              </button>
+              <div className="flex items-center gap-2">
+                <select
+                  value={newSeverity}
+                  onChange={(e) => setNewSeverity(e.target.value as any)}
+                  className="text-xs rounded-lg border border-stone-300 dark:border-stone-700 px-2 py-2 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 focus:outline-none flex-1 sm:flex-initial"
+                >
+                  <option value="anaphylactic">Anaphylactic (EpiPen)</option>
+                  <option value="severe">Severe / Celiac</option>
+                  <option value="moderate">Moderate</option>
+                  <option value="intolerance">Intolerance</option>
+                </select>
+                <button
+                  onClick={handleAddAllergen}
+                  className="flex items-center justify-center gap-1 bg-stone-800 dark:bg-stone-700 text-white rounded-lg px-4 py-2 text-xs font-bold hover:bg-stone-700 shrink-0 cursor-pointer"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Add
+                </button>
+              </div>
             </div>
           </div>
 
@@ -171,7 +175,7 @@ export const RoommateBanner: React.FC<RoommateBannerProps> = ({ profile, onUpdat
             </button>
             <button
               onClick={handleSave}
-              className="px-4 py-1.5 text-xs font-semibold bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-xs"
+              className="px-4 py-1.5 text-xs font-semibold bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 shadow-xs cursor-pointer"
             >
               Save Profile
             </button>

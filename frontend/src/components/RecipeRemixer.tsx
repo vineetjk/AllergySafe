@@ -213,12 +213,12 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
               {/* ElevenLabs Hands-free Button */}
               <button
                 onClick={handlePlayVoiceGuide}
                 disabled={voiceLoading}
-                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer ${
+                className={`flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer w-full sm:w-auto ${
                   isPlayingAudio
                     ? "bg-rose-600 text-white animate-pulse"
                     : "bg-purple-600 hover:bg-purple-700 text-white"
@@ -242,20 +242,22 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
                 )}
               </button>
 
-              <button
-                onClick={copyToClipboard}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors cursor-pointer"
-              >
-                <Copy className="h-3.5 w-3.5" />
-                <span>{copied ? "Copied!" : "Copy"}</span>
-              </button>
-              <button
-                onClick={() => window.print()}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors cursor-pointer"
-              >
-                <Printer className="h-3.5 w-3.5" />
-                <span>Print</span>
-              </button>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  onClick={copyToClipboard}
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors cursor-pointer"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                  <span>{copied ? "Copied!" : "Copy"}</span>
+                </button>
+                <button
+                  onClick={() => window.print()}
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors cursor-pointer"
+                >
+                  <Printer className="h-3.5 w-3.5" />
+                  <span>Print</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -291,13 +293,51 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
             </p>
           </div>
 
-          {/* Side-by-Side Substitutions Table */}
+          {/* Substitutions: Mobile Card View + Desktop Table View */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-3 flex items-center gap-1.5">
               <ArrowLeftRight className="h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />
               <span>Ingredient Swaps & Equivalence Matrix</span>
             </h4>
-            <div className="overflow-hidden rounded-xl border border-stone-200 dark:border-stone-800">
+
+            {/* Mobile Card List (< 640px) */}
+            <div className="block sm:hidden space-y-2.5">
+              {remixResult.safe_ingredients.map((item, idx) => {
+                const isChanged = item.original !== item.substitute;
+                return (
+                  <div
+                    key={idx}
+                    className={`rounded-xl p-3 border text-xs ${
+                      isChanged
+                        ? "bg-emerald-50/30 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/60"
+                        : "bg-stone-50 dark:bg-stone-800/50 border-stone-200 dark:border-stone-800"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className={`font-medium ${isChanged ? "line-through text-rose-600 dark:text-rose-400" : "text-stone-700 dark:text-stone-300"}`}>
+                        {item.original}
+                      </span>
+                      {isChanged && (
+                        <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/80 px-2 py-0.5 rounded-full shrink-0">
+                          Safe Swap
+                        </span>
+                      )}
+                    </div>
+                    {isChanged && (
+                      <div className="mt-1 font-bold text-stone-900 dark:text-stone-100">
+                        ➔ {item.substitute}
+                      </div>
+                    )}
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
+                      {item.notes}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table (>= 640px) */}
+            <div className="hidden sm:block overflow-hidden rounded-xl border border-stone-200 dark:border-stone-800">
               <table className="w-full text-left text-xs">
                 <thead className="bg-stone-50 dark:bg-stone-800/80 text-stone-500 dark:text-stone-400 uppercase font-semibold border-b border-stone-200 dark:border-stone-800">
                   <tr>

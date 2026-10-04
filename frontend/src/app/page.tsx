@@ -119,54 +119,66 @@ export default function Home() {
         />
 
         {/* Tab Switcher */}
-        <div className="flex border-b border-stone-200 dark:border-stone-800 gap-2 overflow-x-auto pb-px">
+        <div className="flex border-b border-stone-200 dark:border-stone-800 gap-1.5 sm:gap-2 overflow-x-auto pb-px no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
           <button
             onClick={() => setActiveTab("scanner")}
-            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`flex items-center gap-1.5 sm:gap-2 border-b-2 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === "scanner"
                 ? "border-emerald-600 dark:border-emerald-500 text-emerald-800 dark:text-emerald-300 bg-white/60 dark:bg-stone-900/60 rounded-t-xl"
                 : "border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:border-stone-300 dark:hover:border-stone-700"
             }`}
           >
-            <ShieldAlert className="h-4 w-4" />
-            <span>Safety Scanner ("Can {profile.name} Eat This?")</span>
+            <ShieldAlert className="h-4 w-4 shrink-0" />
+            <span>
+              <span className="sm:hidden">Scanner</span>
+              <span className="hidden sm:inline">Safety Scanner ("Can {profile.name} Eat This?")</span>
+            </span>
           </button>
 
           <button
             onClick={() => setActiveTab("remixer")}
-            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`flex items-center gap-1.5 sm:gap-2 border-b-2 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === "remixer"
                 ? "border-emerald-600 dark:border-emerald-500 text-emerald-800 dark:text-emerald-300 bg-white/60 dark:bg-stone-900/60 rounded-t-xl"
                 : "border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:border-stone-300 dark:hover:border-stone-700"
             }`}
           >
-            <ChefHat className="h-4 w-4" />
-            <span>Recipe Remixer (1:1 Safe Swaps)</span>
+            <ChefHat className="h-4 w-4 shrink-0" />
+            <span>
+              <span className="sm:hidden">Recipe Remixer</span>
+              <span className="hidden sm:inline">Recipe Remixer (1:1 Safe Swaps)</span>
+            </span>
           </button>
 
           <button
             onClick={() => setActiveTab("planner")}
-            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`flex items-center gap-1.5 sm:gap-2 border-b-2 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === "planner"
                 ? "border-emerald-600 dark:border-emerald-500 text-emerald-800 dark:text-emerald-300 bg-white/60 dark:bg-stone-900/60 rounded-t-xl"
                 : "border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:border-stone-300 dark:hover:border-stone-700"
             }`}
           >
-            <CalendarDays className="h-4 w-4" />
-            <span>Co-Dining Meal Planner</span>
+            <CalendarDays className="h-4 w-4 shrink-0" />
+            <span>
+              <span className="sm:hidden">Meal Planner</span>
+              <span className="hidden sm:inline">Co-Dining Meal Planner</span>
+            </span>
           </button>
 
           <button
             onClick={() => setActiveTab("handover")}
-            className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
+            className={`flex items-center gap-1.5 sm:gap-2 border-b-2 px-3 sm:px-4 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer shrink-0 ${
               activeTab === "handover"
                 ? "border-rose-500 text-rose-700 dark:text-rose-300 bg-white/60 dark:bg-stone-900/60 rounded-t-xl"
                 : "border-transparent text-stone-500 dark:text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 hover:border-stone-300 dark:hover:border-stone-700"
             }`}
           >
-            <HeartHandshake className="h-4 w-4 text-rose-500" />
-            <span>Handover Story & Reaction</span>
-            <span className="text-[10px] font-bold bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 px-1.5 py-0.5 rounded-full">
+            <HeartHandshake className="h-4 w-4 text-rose-500 shrink-0" />
+            <span>
+              <span className="sm:hidden">Friend Handover</span>
+              <span className="hidden sm:inline">Handover Story & Reaction</span>
+            </span>
+            <span className="text-[10px] font-bold bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 px-1.5 py-0.5 rounded-full shrink-0">
               Bonus
             </span>
           </button>

@@ -183,14 +183,14 @@ export const IngredientScanner: React.FC<IngredientScannerProps> = ({ profile, o
 
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
             <div className="flex items-center gap-2 text-xs text-stone-400 dark:text-stone-500">
-              <Cpu className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+              <Cpu className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
               <span>Zero cloud leakage • Evaluates {profile.allergies.length} clinical profiles locally</span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <button
                 onClick={() => setCameraModalOpen(true)}
-                className="flex items-center gap-1.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 px-3.5 py-2.5 text-xs font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors cursor-pointer"
+                className="flex items-center justify-center gap-1.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 px-3.5 py-2.5 text-xs font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors cursor-pointer w-full sm:w-auto"
               >
                 <Camera className="h-4 w-4" />
                 <span>Camera Scan</span>
@@ -199,7 +199,7 @@ export const IngredientScanner: React.FC<IngredientScannerProps> = ({ profile, o
               <button
                 onClick={() => handleScan()}
                 disabled={loading}
-                className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition-colors disabled:opacity-50 cursor-pointer"
+                className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition-colors disabled:opacity-50 cursor-pointer w-full sm:w-auto"
               >
                 {loading ? (
                   <>
