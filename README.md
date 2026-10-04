@@ -1,90 +1,120 @@
 # AllergySafe Table
 
-> **Can Prithvi eat this?** A food companion built for a friend.
-> *Submission for the Hacktoberfest Weekend Challenge: Build for a Friend (HF26)*
+**Can Prithvi eat this?** A friendly food companion built for a friend.
 
-Prithvi is sometimes lactose intolerant, has a sensitive gut, has high TSH (thyroid), and is working on losing weight. Planning food around all four at once is hard, especially when ordering out or cooking together. AllergySafe Table answers the everyday question, *"can she eat this?"*, and suggests easy swaps and healthier options.
+My friend Prithvi is sometimes lactose intolerant, has a sensitive gut, has high TSH (thyroid), and is trying to lose weight. Keeping all four in mind every time we cook or order food is hard. AllergySafe Table answers the everyday question *"can she eat this?"* in plain language, suggests easy swaps, and plans meals everyone can share.
 
-The profile is editable, so the app also works for other people and for food allergies such as gluten, nuts, peanuts, soy, eggs, shellfish, and sesame.
+*Built for the Hacktoberfest Weekend Challenge: Build for a Friend (HF26).*
+
+<p align="center">
+  <img src="docs/screenshots/desktop-ask.png" alt="Asking whether Prithvi can eat paneer butter masala on desktop" width="900">
+</p>
 
 ---
 
-## What it does
+## Features
 
-- **Ask (conversational):** ask in plain words, like *"Can Prithvi eat paneer butter masala?"* or *"What can she have for breakfast?"*. You can type, speak, or send a photo. Answers explain why, suggest swaps, and can be read aloud. If it doesn't know a dish, it asks for the ingredients.
-- **Ingredient scanner:** paste a recipe or a packaged-food label and see what to watch out for, with a suggested swap for each item.
-- **Photo check:** take or upload a photo. Without an image model on the server, the dish name you type is used to look up typical ingredients. The app never guesses.
-- **Recipe remixer:** swaps only the ingredients that clash with the profile and keeps the rest of the dish. It can read the steps aloud hands-free.
-- **Meal planner:** 3, 5, or 7 dinners that suit the profile, so everyone eats the same meal, with a shopping list.
-- **Food notes:** record what she loved and what didn't sit well.
-- **Light and dark themes, phone-friendly layout.**
+### Ask in plain words
 
-### How the checks work
+Type, speak, or send a photo, for example *"Can Prithvi eat paneer butter masala?"* or *"What can she have for breakfast?"*. Each answer gives a clear verdict, the reasons, easy swaps, and healthier options, and can be read aloud. If the app doesn't know a dish, it asks what's in it.
 
-Every verdict comes from open, readable rules in the backend's engine folder:
+<p align="center">
+  <img src="docs/screenshots/mobile-ask.png" alt="Ask screen with suggested questions" width="250">
+  &nbsp;
+  <img src="docs/screenshots/mobile-answer.png" alt="Answer with verdict, reasons, and swaps" width="250">
+  &nbsp;
+  <img src="docs/screenshots/mobile-dark.png" alt="Answer in dark mode" width="250">
+</p>
 
-| Profile item | Treated as | Examples flagged |
+### Check ingredients or a photo
+
+Paste a recipe or a food label to see exactly what to watch out for, with a swap for each item. Photos work for meals, single ingredients, and packaged food.
+
+<p align="center">
+  <img src="docs/screenshots/mobile-scan.png" alt="Ingredient check result" width="250">
+  &nbsp;
+  <img src="docs/screenshots/mobile-photo.png" alt="Photo check panel" width="250">
+</p>
+
+### Remix a recipe
+
+Swap only the ingredients that don't suit her, and keep the rest of the dish. The steps can be read aloud so you can cook hands-free.
+
+### Plan dinners and keep notes
+
+Plan 3, 5, or 7 dinners that suit her profile, with a shopping list, so everyone eats the same meal. Food notes record what she loved and what didn't sit well.
+
+<p align="center">
+  <img src="docs/screenshots/mobile-remix.png" alt="Remixed recipe with swaps" width="250">
+  &nbsp;
+  <img src="docs/screenshots/mobile-plan.png" alt="Dinner plan" width="250">
+  &nbsp;
+  <img src="docs/screenshots/mobile-notes.png" alt="Food notes" width="250">
+</p>
+
+### Her profile, your way
+
+Each condition explains what to limit and what's fine. The profile is editable, so the app also works for other people and for food allergies. It's saved only on the device.
+
+<p align="center">
+  <img src="docs/screenshots/mobile-profile.png" alt="Prithvi's food profile" width="250">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/desktop-plan-dark.png" alt="Dinner plan on desktop in dark mode" width="900">
+</p>
+
+---
+
+## How the checks work
+
+Every verdict comes from open, readable rules, not from a chatbot guessing.
+
+| In the profile | Result | Examples flagged |
 | :--- | :--- | :--- |
-| Lactose (sometimes) | Caution | Milk, cream, paneer, curd, lassi, kheer. Ghee is treated as fine. |
-| Sensitive gut | Caution | Deep-fried food, very spicy dishes, fizzy drinks, alcohol, sugar alcohols, rajma |
-| High TSH (thyroid) | Caution | Soy foods, soya chunks, bajra, large raw cruciferous portions |
-| Weight loss goal | Caution | Fried snacks, sweets, sugar, maida, heavy cream, sugary drinks |
-| Food allergies | Danger | Gluten, tree nuts, peanuts, dairy, soy, eggs, shellfish, sesame, including hidden sources |
+| Lactose (sometimes) | In moderation | Milk, cream, paneer, curd, lassi. Ghee is treated as fine. |
+| Sensitive gut | In moderation | Deep-fried food, very spicy dishes, fizzy drinks, alcohol, rajma |
+| High TSH (thyroid) | In moderation | Soy foods, soya chunks, bajra, large raw cruciferous portions |
+| Weight-loss goal | In moderation | Fried snacks, sweets, sugar, maida, heavy cream |
+| Food allergies | Not safe | Gluten, nuts, peanuts, dairy, soy, eggs, shellfish, sesame, including hidden sources |
 
-The dish library holds typical ingredients for about 80 common Indian and international dishes and foods. This is general food guidance, not medical advice.
+The app knows the typical ingredients of about 80 common Indian and international dishes. Recipes vary, so answers say which ingredients they assumed.
+
+> This is general food guidance, not medical advice. Follow a doctor or dietitian for thyroid, gut, and weight concerns.
 
 ---
 
-## Tech
+## Tech stack
 
 | Part | Technology |
 | :--- | :--- |
 | Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS |
 | Backend | FastAPI (Python 3.11+) with a rule-based food engine |
-| Voice | ElevenLabs: Eleven v4 Turbo for speech, Scribe v2 for voice questions. Falls back to the browser's voice without a key. |
-| Optional local model | Ollama (for example Google Gemma) for photo recognition and future features |
-| Hosting | Render Blueprint (`render.yaml`) for both services |
-| CI | GitHub Actions: backend tests on Python 3.11 to 3.13, frontend build |
+| Voice | ElevenLabs: Eleven v4 Turbo for speech and Scribe v2 for voice questions. Falls back to the browser's voice without a key. |
+| Optional | Ollama with a local vision model for photo recognition |
+| Hosting | Render Blueprint (`render.yaml`) |
+| CI | GitHub Actions: backend tests on Python 3.11 to 3.13, and a frontend build |
 
-The browser only talks to the Next.js server. Next.js forwards `/api/*` to the backend, so there are no cross-origin or mixed-content problems on phones. Each visitor's profile and notes are stored in their own browser, never on the server.
-
-```
-backend/app/
-  api/routes.py                 REST endpoints (/ask, /scan, /scan-image, /remix, /meal-plan, /voice-guide, /speak, /transcribe)
-  api/rate_limit.py             Limits on the endpoints that spend ElevenLabs credits
-  engine/assistant.py           Conversational "can she eat this?" logic
-  engine/food_library.py        Typical dish ingredients and the healthy meal library
-  engine/allergen_knowledge_base.py  Allergens, health conditions, and swaps
-  engine/safety_analyzer.py     Matches ingredients against a profile
-  engine/recipe_remixer.py      Profile-aware swaps
-  engine/meal_planner.py        Profile-aware dinner plans
-  engine/voice_service.py       ElevenLabs speech and transcription
-frontend/src/
-  components/AskAssistant.tsx   Chat with text, voice, and photo input
-  lib/api.ts                    API client (shows real errors; no fake fallbacks)
-  lib/profile.ts                Default profile, stored per browser
-```
+The browser only talks to the Next.js server, which forwards `/api/*` to the backend. Profiles and notes stay in each visitor's browser. Endpoints that use ElevenLabs credits are rate-limited.
 
 ---
 
 ## Run locally
 
-Prerequisites: Python 3.11+, Node.js 20.9+.
+You need Python 3.11+ and Node.js 20.9+.
 
 ```bash
-# one-time setup
 python3 -m venv backend/venv
 backend/venv/bin/pip install -r backend/requirements.txt
 (cd frontend && npm install)
 
-# optional: voice
-cp backend/.env.example backend/.env   # then add your ElevenLabs API key
+# Optional: voice. Add your ElevenLabs API key to backend/.env
+cp backend/.env.example backend/.env
 
 ./start.sh
 ```
 
-- Laptop: http://localhost:3000
-- Phone on the same Wi-Fi: the address `start.sh` prints. Voice input and the live camera need HTTPS, so on a phone use the hosted site or photo upload.
+Open http://localhost:3000. Voice input and the live camera need HTTPS, so test those on the deployed site.
 
 Run the tests:
 
@@ -98,19 +128,38 @@ PYTHONPATH=backend backend/venv/bin/pytest backend/tests -v
 ## Deploy on Render
 
 1. Push this repository to GitHub.
-2. In Render, choose **New → Blueprint** and select the repository. Both services are created from `render.yaml`.
-3. On the backend service, set `ELEVENLABS_API_KEY` in **Environment**.
-4. If Render gives the backend a URL other than `https://allergysafe-table-api.onrender.com`, set the frontend's `BACKEND_URL` to the real URL and redeploy the frontend.
+2. In Render, choose **New**, then **Blueprint**, and select the repository.
+3. On the backend service, set `ELEVENLABS_API_KEY` under **Environment**.
+4. If the backend's URL isn't `https://allergysafe-table-api.onrender.com`, set the frontend's `BACKEND_URL` to the real URL and redeploy the frontend.
 
-Free Render services sleep when idle, so the first request after a while can take up to a minute.
+Free Render services sleep when idle, so the first request can take up to a minute.
+
+---
+
+## Project structure
+
+```
+backend/app/
+  api/routes.py            API endpoints
+  engine/assistant.py      "Can she eat this?" conversation logic
+  engine/food_library.py   Typical dish ingredients and healthy meals
+  engine/allergen_knowledge_base.py   Allergens, conditions, and swaps
+  engine/safety_analyzer.py           Checks ingredients against a profile
+  engine/voice_service.py  ElevenLabs speech and transcription
+frontend/src/
+  app/page.tsx             App shell and navigation
+  components/              Ask, Scan, Remix, Plan, Notes, and profile UI
+  lib/                     API client, profile storage, audio helpers
+docs/
+  screenshots/             Images used in this README
+  DEV_SUBMISSION.md        Hackathon write-up
+```
 
 ---
 
 ## Why open source
 
-- **Private:** the food checks run on the app's own server with open rules, and profiles stay in the browser. ElevenLabs is used only when someone uses voice.
-- **Checkable:** every verdict can be traced to a rule anyone can read and correct.
-- **Self-hostable:** runs on a laptop with no paid AI API.
-- **Free to improve:** anyone can add dishes, ingredients, or conditions.
-
-Read the hackathon write-up in [docs/DEV_SUBMISSION.md](docs/DEV_SUBMISSION.md).
+- **Private:** profiles stay in the browser, and food checks don't use any third-party AI. ElevenLabs is used only for voice.
+- **Checkable:** every verdict traces back to a rule anyone can read and fix.
+- **Self-hostable:** runs on a laptop with no paid AI service.
+- **Easy to extend:** anyone can add dishes, ingredients, or conditions.

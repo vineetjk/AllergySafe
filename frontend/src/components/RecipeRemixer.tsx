@@ -171,14 +171,14 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
             </div>
 
             <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-              {/* ElevenLabs Hands-free Button */}
+              {/* Hands-free narration */}
               <button
                 onClick={handlePlayVoiceGuide}
                 disabled={voiceLoading}
-                className={`flex items-center justify-center gap-1.5 px-3.5 py-2 sm:py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer w-full sm:w-auto ${
+                className={`flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-semibold transition-colors cursor-pointer w-full sm:w-auto ${
                   isPlayingAudio
-                    ? "bg-rose-600 text-white animate-pulse"
-                    : "bg-purple-600 hover:bg-purple-700 text-white"
+                    ? "bg-rose-600 text-white"
+                    : "bg-emerald-700 hover:bg-emerald-800 text-white"
                 }`}
               >
                 {voiceLoading ? (
@@ -202,14 +202,14 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
                   onClick={copyToClipboard}
-                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors cursor-pointer"
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors cursor-pointer"
                 >
                   <Copy className="h-3.5 w-3.5" />
                   <span>{copied ? "Copied!" : "Copy"}</span>
                 </button>
                 <button
                   onClick={() => window.print()}
-                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800 text-xs font-semibold text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors cursor-pointer"
+                  className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-sm font-medium text-stone-700 dark:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-700 transition-colors cursor-pointer"
                 >
                   <Printer className="h-3.5 w-3.5" />
                   <span>Print</span>
@@ -220,19 +220,19 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
 
           {/* ElevenLabs Active Playing Banner */}
           {isPlayingAudio && (
-            <div className="rounded-xl border border-purple-200 dark:border-purple-800 bg-purple-50/70 dark:bg-purple-950/40 p-3.5 flex items-center justify-between text-xs text-purple-950 dark:text-purple-200">
+            <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 p-3.5 flex items-center justify-between gap-3 text-sm text-emerald-950 dark:text-emerald-100">
               <div className="flex items-center gap-2.5">
-                <Radio className="h-4 w-4 text-purple-600 dark:text-purple-400 animate-pulse" />
+                <Radio className="h-4 w-4 text-emerald-700 dark:text-emerald-400 animate-pulse" />
                 <div>
                   <span className="font-bold">Reading the steps aloud</span>
-                  <p className="text-[11px] text-purple-700 dark:text-purple-300">
+                  <p className="text-xs text-emerald-800/80 dark:text-emerald-300">
                     Voice: {voiceProvider || "ElevenLabs"}
                   </p>
                 </div>
               </div>
               <button
                 onClick={handlePlayVoiceGuide}
-                className="text-xs text-purple-700 dark:text-purple-300 font-bold hover:underline cursor-pointer shrink-0"
+                className="rounded-full border border-emerald-300 dark:border-emerald-800 px-3 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-300 cursor-pointer shrink-0"
               >
                 Stop
               </button>
@@ -274,11 +274,6 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
                       <span className={`font-medium ${isChanged ? "line-through text-rose-600 dark:text-rose-400" : "text-stone-700 dark:text-stone-300"}`}>
                         {item.original}
                       </span>
-                      {isChanged && (
-                        <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/80 px-2 py-0.5 rounded-full shrink-0">
-                          Swap
-                        </span>
-                      )}
                     </div>
                     {isChanged && (
                       <div className="mt-1 font-bold text-stone-900 dark:text-stone-100">
@@ -322,7 +317,7 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
                         </td>
                         <td className="px-4 py-2.5 font-bold text-stone-900 dark:text-stone-100">
                           {isChanged ? (
-                            <span className="text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">
+                            <span className="text-emerald-800 dark:text-emerald-300">
                               {item.substitute}
                             </span>
                           ) : (

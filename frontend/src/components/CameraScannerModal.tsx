@@ -346,7 +346,7 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
               </label>
 
               <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500 block mb-2">
+                <span className="text-sm font-medium text-stone-500 dark:text-stone-400 block mb-2">
                   Or try a sample dish
                 </span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
