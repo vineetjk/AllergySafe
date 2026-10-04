@@ -107,6 +107,7 @@ export interface AskResponse {
   verdict: RiskLevel | null;
   dish: string | null;
   assumed_ingredients: string[];
+  ingredients_source?: string | null;
   concerns: string[];
   swaps: Array<{ ingredient: string; swap: string; reason: string }>;
   suggestions: Array<{ title: string; why: string }>;

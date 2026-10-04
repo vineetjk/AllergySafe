@@ -67,7 +67,7 @@ async def health_check():
             "ollama_connected": ollama_ready,
             "active_model": active_model,
             "is_gemma_model": "gemma" in active_model.lower(),
-            "mode": f"Local open model ({active_model})" if ollama_ready else "Rule-based engine",
+            "mode": f"Rules, plus {active_model} on this machine for unknown dishes" if ollama_ready else "Rule-based engine",
         },
         "voice": {
             "text_to_speech": voice_ready,
@@ -83,7 +83,7 @@ async def get_profile():
 @router.post("/ask", response_model=AskResponse)
 async def ask(req: AskRequest):
     """Conversational check: "Can Prithvi eat paneer butter masala?" """
-    return FoodAssistant.answer(req, req.profile or DEFAULT_PROFILE)
+    return await FoodAssistant.answer_with_open_model(req, req.profile or DEFAULT_PROFILE)
 
 @router.post("/scan", response_model=ScanResponse)
 async def scan_ingredients(req: ScanRequest):
@@ -178,7 +178,7 @@ async def why_open_source():
             },
             {
                 "title": "Self-hostable",
-                "argument": "The whole app runs on a laptop or home network with no paid AI API. An optional local open model can be added through Ollama."
+                "argument": "The whole app runs on a laptop or home network with no paid AI API. When Ollama is running, Gemma 2 on the same machine suggests ingredients for dishes the library does not know, and the open rules still decide the verdict."
             },
             {
                 "title": "Free to use and improve",

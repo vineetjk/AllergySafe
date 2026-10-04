@@ -160,6 +160,8 @@ class AskResponse(BaseModel):
     verdict: Optional[RiskLevel] = None
     dish: Optional[str] = None
     assumed_ingredients: List[str] = []
+    # Set when the ingredients came from the local open model, e.g. "gemma2:2b".
+    ingredients_source: Optional[str] = None
     concerns: List[str] = []
     swaps: List[AskSwap] = []
     suggestions: List[AskSuggestion] = []

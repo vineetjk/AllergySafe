@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -11,6 +13,8 @@ from app.engine.recipe_remixer import RecipeRemixer, strip_step_label
 from app.engine.meal_planner import MealPlanner
 from app.engine.assistant import FoodAssistant
 from app.engine.voice_service import VoiceService
+from app.engine import assistant as assistant_module
+from app.engine.llm_provider import parse_ingredient_json
 
 
 @pytest.fixture
@@ -112,6 +116,49 @@ def test_assistant_asks_for_unknown_dish_then_uses_follow_up(prithvi):
     )
     assert second.dish == "thalipeeth"
     assert second.verdict == RiskLevel.CAUTION
+
+
+class FakeOpenModel:
+    def __init__(self, ingredients):
+        self.ingredients = ingredients
+
+    async def suggest_ingredients(self, dish):
+        return self.ingredients
+
+    async def resolve_active_model(self):
+        return "gemma2:2b"
+
+
+def test_open_model_fills_in_unknown_dish_and_rules_decide(prithvi, monkeypatch):
+    monkeypatch.setattr(assistant_module, "open_llm", FakeOpenModel(["jowar flour", "onion", "oil", "curd"]))
+    r = asyncio.run(FoodAssistant.answer_with_open_model(AskRequest(message="Can she eat thalipeeth?"), prithvi))
+    assert r.verdict == RiskLevel.CAUTION
+    assert r.ingredients_source == "gemma2:2b"
+    assert "curd" in r.assumed_ingredients
+    assert "gemma2:2b" in r.reply
+    # A corrected list still goes through the follow-up path.
+    assert r.context.pending_dish == "thalipeeth"
+
+
+def test_without_open_model_unknown_dish_asks_for_ingredients(prithvi, monkeypatch):
+    monkeypatch.setattr(assistant_module, "open_llm", FakeOpenModel([]))
+    r = asyncio.run(FoodAssistant.answer_with_open_model(AskRequest(message="Can she eat thalipeeth?"), prithvi))
+    assert r.verdict is None and r.ingredients_source is None
+    assert r.context.pending_dish == "thalipeeth"
+
+
+def test_open_model_not_used_for_known_dishes(prithvi, monkeypatch):
+    monkeypatch.setattr(assistant_module, "open_llm", FakeOpenModel(["sugar"]))
+    r = asyncio.run(FoodAssistant.answer_with_open_model(AskRequest(message="Can she eat rajma chawal?"), prithvi))
+    assert r.ingredients_source is None
+
+
+def test_parse_ingredient_json():
+    assert parse_ingredient_json('{"known": true, "ingredients": ["Paneer.", "cream", "paneer", 3]}') == ["paneer", "cream"]
+    assert parse_ingredient_json('{"known": false, "ingredients": ["x", "y"]}') == []
+    assert parse_ingredient_json('{"known": true, "ingredients": ["only one"]}') == []
+    assert parse_ingredient_json("not json") == []
+    assert parse_ingredient_json(None) == []
 
 
 def test_assistant_suggests_meals_that_fit_profile(prithvi):

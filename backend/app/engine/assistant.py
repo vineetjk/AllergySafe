@@ -4,7 +4,9 @@ Conversational "Can she eat this?" assistant.
 Understands questions like "Can Prithvi eat paneer butter masala?", meal-idea
 requests ("what can she have for breakfast?"), and follow-up ingredient lists.
 Answers are built from the same rule-based safety analysis as the scanner, so
-they are consistent and never invented.
+they are consistent and never invented. For dishes the food library doesn't know,
+a local open model (Gemma 2 via Ollama) may suggest the typical ingredients; the
+rules still decide the verdict.
 """
 import random
 import re
@@ -12,6 +14,7 @@ from typing import List, Optional
 
 from app.engine.allergen_knowledge_base import ALLERGEN_TAXONOMY, HEALTH_CATEGORIES
 from app.engine.food_library import MEALS, dish_ingredients, find_dish
+from app.engine.llm_provider import open_llm
 from app.engine.safety_analyzer import SafetyAnalyzer, active_categories, map_user_allergy_to_category
 from app.models.schemas import (
     AskContext, AskRequest, AskResponse, AskSuggestion, AskSwap, RiskLevel, UserProfile,
@@ -94,6 +97,30 @@ def suggest_meals(profile: UserProfile, meal_type: Optional[str], count: int = 4
 
 class FoodAssistant:
     @staticmethod
+    async def answer_with_open_model(req: AskRequest, profile: UserProfile) -> AskResponse:
+        """Like answer(), but asks the local open model about dishes the library doesn't know."""
+        response = FoodAssistant.answer(req, profile)
+        dish = response.context.pending_dish
+        if not dish or response.verdict is not None:
+            return response
+
+        ingredients = await open_llm.suggest_ingredients(dish)
+        if not ingredients:
+            return response
+
+        model = await open_llm.resolve_active_model()
+        guessed = FoodAssistant._analyse(profile, dish, ingredients, assumed=True)
+        guessed.reply = guessed.reply.replace(
+            " This is based on a typical recipe; tell me if yours is different.",
+            f" I didn't have {dish} in my recipe list, so {model} (running locally) guessed what's in it."
+            " If that's wrong, tell me the real ingredients and I'll check again.",
+        )
+        guessed.ingredients_source = model
+        # Keep the follow-up open so a corrected ingredient list is checked against this dish.
+        guessed.context = AskContext(pending_dish=dish)
+        return guessed
+
+    @staticmethod
     def answer(req: AskRequest, profile: UserProfile) -> AskResponse:
         message = req.message.strip()
         context = req.context or AskContext()
@@ -137,12 +164,11 @@ class FoodAssistant:
             )
 
         # Free text that mentions ingredients directly ("pasta with cream and cheese")
-        scan = SafetyAnalyzer.analyze(message, profile)
-        if scan.flags:
-            phrase = _extract_dish_phrase(message) or "that"
-            return FoodAssistant._from_scan(profile, phrase, scan, [], assumed=False)
-
         phrase = _extract_dish_phrase(message)
+        scan = SafetyAnalyzer.analyze(phrase or message, profile)
+        if scan.flags:
+            return FoodAssistant._from_scan(profile, phrase or "that", scan, [], assumed=False)
+
         if phrase:
             return AskResponse(
                 reply=(

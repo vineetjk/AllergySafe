@@ -5,7 +5,6 @@ from app.engine.allergen_knowledge_base import ALLERGEN_TAXONOMY, HEALTH_CATEGOR
 from app.engine.safety_analyzer import (
     active_categories, clean_token, find_trigger, substitute_for,
 )
-from app.engine.llm_provider import open_llm
 from app.models.schemas import AllergenSeverity
 
 # Leading labels like "Step 3:", "Step 1 (Prep):", "3.", "3)" so steps are
@@ -101,8 +100,6 @@ class RecipeRemixer:
         else:
             flavor_notes = f"Nothing needed swapping. This recipe already suits {profile.name}."
 
-        ollama_active = await open_llm.is_ollama_available()
-        engine_str = "Local open model via Ollama" if ollama_active else "Rule-based recipe engine"
 
         return RecipeRemixResponse(
             remixed_title=f"{req.title} ({profile.name}-friendly)",
@@ -114,5 +111,5 @@ class RecipeRemixer:
             instructions=instructions,
             cross_contamination_rules=kitchen_rules,
             flavor_preservation_notes=flavor_notes,
-            ai_engine=engine_str,
+            ai_engine="Rule-based recipe engine",
         )

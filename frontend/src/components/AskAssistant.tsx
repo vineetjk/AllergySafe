@@ -547,7 +547,9 @@ function AssistantBubble({
 
         {r && r.assumed_ingredients.length > 0 && (
           <p className="text-xs text-stone-500 dark:text-stone-400">
-            Typical ingredients assumed: {r.assumed_ingredients.join(", ")}.
+            {r.ingredients_source
+              ? `Ingredients guessed by ${r.ingredients_source} on this device: ${r.assumed_ingredients.join(", ")}. The verdict comes from the food rules.`
+              : `Typical ingredients assumed: ${r.assumed_ingredients.join(", ")}.`}
           </p>
         )}
 

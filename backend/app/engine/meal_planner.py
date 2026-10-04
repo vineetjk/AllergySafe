@@ -2,7 +2,6 @@ import random
 from typing import Dict, List
 
 from app.engine.food_library import MEALS
-from app.engine.llm_provider import open_llm
 from app.engine.safety_analyzer import SafetyAnalyzer
 from app.models.schemas import (
     DayMealPlan, MealPlanRequest, MealPlanResponse, RiskLevel, UserProfile,
@@ -58,12 +57,10 @@ class MealPlanner:
             "Prep vegetables for two days at a time to make weeknights quicker.",
         ]
 
-        ollama_active = await open_llm.is_ollama_available()
-        engine_str = "Local open model via Ollama" if ollama_active else "Rule-based meal planner"
 
         return MealPlanResponse(
             days=days_list,
             grocery_list_by_aisle=groceries,
             kitchen_safety_protocol=kitchen_protocol,
-            ai_engine=engine_str,
+            ai_engine="Rule-based meal planner",
         )
