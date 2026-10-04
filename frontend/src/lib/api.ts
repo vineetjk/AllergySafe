@@ -6,17 +6,13 @@ import {
 } from "../types";
 
 export function getApiBase(): string {
+  // Optional override for calling a backend directly from the browser.
   if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL;
+    return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, "");
   }
-  if (typeof window !== "undefined") {
-    const host = window.location.hostname;
-    // When accessed from a mobile phone on the local Wi-Fi network (e.g. 192.168.x.x)
-    if (host && host !== "localhost" && host !== "127.0.0.1") {
-      return `http://${host}:8000/api`;
-    }
-  }
-  return "http://localhost:8000/api";
+  // Default: same-origin path, proxied to the backend by the Next.js server
+  // (see rewrites in next.config.ts). Works on localhost, LAN phones and Render.
+  return "/api";
 }
 
 async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutMs = 3500): Promise<Response> {

@@ -22,13 +22,15 @@ services:
     runtime: node
     region: oregon
     plan: free
-    buildCommand: "cd frontend && npm install && npm run build"
+    buildCommand: "cd frontend && npm ci && npm run build"
     startCommand: "cd frontend && npm run start -- -p $PORT"
     envVars:
       - key: NODE_VERSION
         value: 20.17.0
-      - key: NEXT_PUBLIC_API_URL
-        fromService:
-          type: web
-          name: allergysafe-table-api
-          property: host
+      # Public URL of the backend service above. The Next.js server proxies
+      # /api/* to it, so the browser never calls the backend directly.
+      # Render may add a suffix to the name (e.g. -abcd) if it is taken:
+      # copy the real URL from the backend's dashboard page, update this
+      # value, and redeploy the frontend (it is read at build time).
+      - key: BACKEND_URL
+        value: https://allergysafe-table-api.onrender.com

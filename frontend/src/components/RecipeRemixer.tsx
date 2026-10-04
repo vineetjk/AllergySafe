@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { UserProfile, RecipeRemixResponse } from "../types";
-import { remixRecipe } from "../lib/api";
+import { remixRecipe, getApiBase } from "../lib/api";
 import {
   ChefHat, Sparkles, CheckCircle2, ShieldCheck, Copy, Printer,
   RefreshCw, ArrowRight, ArrowLeftRight, Volume2, Square, Mic, Radio
@@ -91,7 +91,7 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
     setVoiceLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/voice-guide", {
+      const res = await fetch(`${getApiBase()}/voice-guide`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
