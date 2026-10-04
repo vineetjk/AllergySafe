@@ -58,3 +58,11 @@ async def test_meal_plan_generation(maya_profile):
     assert len(res.days) == 3
     assert "Produce" in res.grocery_list_by_aisle
     assert len(res.kitchen_safety_protocol) > 0
+@pytest.mark.anyio
+async def test_image_scan_prepared_meal(maya_profile):
+    from app.engine.vision_analyzer import VisionAnalyzer
+    dummy_b64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+    res = await VisionAnalyzer.analyze_image(dummy_b64, maya_profile, hint_label="Pad Thai with peanut sauce")
+    assert "Thai" in res.dish_name
+    assert res.scan_result.overall_verdict == RiskLevel.DANGER
+    assert any("peanut" in i.lower() for i in res.detected_ingredients)

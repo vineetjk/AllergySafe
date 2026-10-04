@@ -40,36 +40,36 @@ export const HandoverFeedback: React.FC<HandoverFeedbackProps> = ({ profile }) =
   return (
     <div className="space-y-6">
       {/* Handover Story Card */}
-      <div className="rounded-2xl border border-rose-200/80 bg-gradient-to-br from-rose-50/40 via-white to-amber-50/30 p-6 shadow-sm">
+      <div className="rounded-2xl border border-rose-200/80 dark:border-rose-900/50 bg-gradient-to-br from-rose-50/40 via-white to-amber-50/30 dark:from-stone-900 dark:via-stone-900/90 dark:to-rose-950/20 p-6 shadow-sm transition-colors">
         <div className="flex items-center gap-2 mb-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-600 text-white">
             <Heart className="h-4 w-4 fill-current" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-stone-900">
+            <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">
               The Handover: Giving AllergySafe Table to {profile.name}
             </h3>
-            <p className="text-xs text-stone-500">
+            <p className="text-xs text-stone-500 dark:text-stone-400">
               Field testing in our apartment kitchen on Thursday night
             </p>
           </div>
         </div>
 
-        <div className="relative rounded-xl bg-white p-5 border border-stone-200 shadow-2xs mt-4">
-          <Quote className="absolute top-3 right-3 h-8 w-8 text-rose-200" />
+        <div className="relative rounded-xl bg-white dark:bg-stone-800/80 p-5 border border-stone-200 dark:border-stone-700 shadow-2xs mt-4">
+          <Quote className="absolute top-3 right-3 h-8 w-8 text-rose-200 dark:text-rose-900/40" />
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 text-rose-700 font-black text-sm">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300 font-black text-sm">
               M
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-stone-900 text-sm">Maya</span>
-                <span className="text-xs text-rose-700 font-semibold bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200/60">
+                <span className="font-bold text-stone-900 dark:text-stone-100 text-sm">Maya</span>
+                <span className="text-xs text-rose-700 dark:text-rose-300 font-semibold bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-full border border-rose-200/60 dark:border-rose-900/60">
                   Verified Roommate
                 </span>
-                <span className="text-xs text-stone-400">Oct 3, 2026</span>
+                <span className="text-xs text-stone-400 dark:text-stone-500">Oct 3, 2026</span>
               </div>
-              <p className="text-xs text-stone-700 mt-2 leading-relaxed italic">
+              <p className="text-xs text-stone-700 dark:text-stone-300 mt-2 leading-relaxed italic">
                 "{commentList[0].text}"
               </p>
             </div>
@@ -78,11 +78,11 @@ export const HandoverFeedback: React.FC<HandoverFeedbackProps> = ({ profile }) =
 
         {/* Before vs After Impact Comparison */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-          <div className="rounded-xl border border-stone-200 bg-stone-50/70 p-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 mb-2">
+          <div className="rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50/70 dark:bg-stone-800/60 p-4">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-2">
               Before AllergySafe Table:
             </h4>
-            <ul className="text-xs text-stone-600 space-y-1.5 list-disc pl-4">
+            <ul className="text-xs text-stone-600 dark:text-stone-300 space-y-1.5 list-disc pl-4">
               <li>45-minute panics reading ingredient labels with magnifying glasses</li>
               <li>Cooking in two separate, depressing mini-skillets to avoid cross-contact</li>
               <li>Constant mental exhaustion and fear of accidental ER visits</li>
@@ -90,11 +90,11 @@ export const HandoverFeedback: React.FC<HandoverFeedbackProps> = ({ profile }) =
             </ul>
           </div>
 
-          <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-800 mb-2">
+          <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/30 p-4">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 mb-2">
               After (With Local Open-Source AI):
             </h4>
-            <ul className="text-xs text-stone-700 space-y-1.5 list-disc pl-4 font-medium">
+            <ul className="text-xs text-stone-700 dark:text-stone-200 space-y-1.5 list-disc pl-4 font-medium">
               <li>Instant 0.2s ingredient audit highlighting sneaky malt extract & derivatives</li>
               <li>1:1 chef-grade replacements (Tamari, sunflower creams, coconut aminos)</li>
               <li>A single shared table where both roommates eat the exact same meal</li>
@@ -105,12 +105,12 @@ export const HandoverFeedback: React.FC<HandoverFeedbackProps> = ({ profile }) =
       </div>
 
       {/* Community / Roommate Notes Widget */}
-      <div className="rounded-2xl border border-stone-200 bg-white p-6 shadow-sm">
-        <h4 className="text-sm font-bold text-stone-900 mb-2 flex items-center gap-2">
+      <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 shadow-sm transition-colors">
+        <h4 className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-2 flex items-center gap-2">
           <MessageSquareHeart className="h-4 w-4 text-rose-500" />
           <span>Roommate Feedback & Kitchen Notes</span>
         </h4>
-        <p className="text-xs text-stone-500 mb-4">
+        <p className="text-xs text-stone-500 dark:text-stone-400 mb-4">
           Leave notes on recipe modifications or how your household handles food allergies.
         </p>
 
@@ -120,18 +120,18 @@ export const HandoverFeedback: React.FC<HandoverFeedbackProps> = ({ profile }) =
             value={userComment}
             onChange={(e) => setUserComment(e.target.value)}
             placeholder="Write a quick note, reaction, or substitute tip..."
-            className="w-full text-xs rounded-xl border border-stone-200 p-3 focus:border-emerald-500 focus:outline-none"
+            className="w-full text-xs rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 p-3 focus:border-emerald-500 focus:outline-none"
           />
           <div className="flex justify-between items-center">
             {submitted && (
-              <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+              <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
                 <CheckCircle2 className="h-3.5 w-3.5" /> Note saved!
               </span>
             )}
             <div className="ml-auto">
               <button
                 type="submit"
-                className="flex items-center gap-1.5 rounded-lg bg-stone-900 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-stone-800 transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 rounded-lg bg-stone-900 dark:bg-stone-100 px-3.5 py-1.5 text-xs font-bold text-white dark:text-stone-900 hover:bg-stone-800 dark:hover:bg-white transition-colors cursor-pointer"
               >
                 <Send className="h-3.5 w-3.5" /> Post Note
               </button>
@@ -139,14 +139,14 @@ export const HandoverFeedback: React.FC<HandoverFeedbackProps> = ({ profile }) =
           </div>
         </form>
 
-        <div className="mt-5 space-y-3 pt-4 border-t border-stone-100">
+        <div className="mt-5 space-y-3 pt-4 border-t border-stone-100 dark:border-stone-800">
           {commentList.map((c, i) => (
-            <div key={i} className="text-xs p-3 rounded-xl bg-stone-50 border border-stone-200/60">
-              <div className="flex items-center justify-between font-bold text-stone-800 mb-1">
+            <div key={i} className="text-xs p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/60 dark:border-stone-700/60">
+              <div className="flex items-center justify-between font-bold text-stone-800 dark:text-stone-200 mb-1">
                 <span>{c.author}</span>
-                <span className="text-[10px] text-stone-400 font-normal">{c.date}</span>
+                <span className="text-[10px] text-stone-400 dark:text-stone-500 font-normal">{c.date}</span>
               </div>
-              <p className="text-stone-600 leading-relaxed">{c.text}</p>
+              <p className="text-stone-600 dark:text-stone-300 leading-relaxed">{c.text}</p>
             </div>
           ))}
         </div>

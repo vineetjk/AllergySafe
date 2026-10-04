@@ -75,6 +75,21 @@ async def scan_ingredients(req: ScanRequest):
     }
     return res
 
+class ImageScanPayload(BaseModel):
+    image_base64: str
+    hint_label: Optional[str] = None
+    profile: Optional[UserProfile] = None
+
+@router.post("/scan-image")
+async def scan_image(payload: ImageScanPayload):
+    from app.engine.vision_analyzer import VisionAnalyzer
+    profile = payload.profile or CURRENT_PROFILE
+    return await VisionAnalyzer.analyze_image(
+        image_base64=payload.image_base64,
+        profile=profile,
+        hint_label=payload.hint_label
+    )
+
 @router.post("/remix", response_model=RecipeRemixResponse)
 async def remix_recipe(req: RecipeRemixRequest):
     return await RecipeRemixer.remix(req)

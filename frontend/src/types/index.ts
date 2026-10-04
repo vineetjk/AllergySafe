@@ -85,3 +85,12 @@ export interface MealPlanResponse {
   kitchen_safety_protocol: string[];
   ai_engine: string;
 }
+
+export interface ImageScanResult {
+  dish_name: string;
+  item_category: string;
+  detected_ingredients: string[];
+  visual_cues: string[];
+  scan_result: ScanResponse;
+  vision_engine: string;
+}

@@ -43,13 +43,40 @@ export default function Home() {
 
   const [activeTab, setActiveTab] = useState<"scanner" | "remixer" | "planner" | "handover">("scanner");
   const [whyModalOpen, setWhyModalOpen] = useState(false);
-  const [engineStatus, setEngineStatus] = useState("Local Open AI: Ready");
+  const [engineStatus, setEngineStatus] = useState("Google Gemma 2 Core: Ready");
+  const [isDark, setIsDark] = useState(false);
 
   // Pre-fill state when transitioning from Scanner to Remixer
   const [remixDishTitle, setRemixDishTitle] = useState("Classic Spaghetti & Meatballs");
   const [remixIngredients, setRemixIngredients] = useState<string[]>([
     "Ground beef", "Egg", "Breadcrumbs", "Parmesan cheese", "All-purpose flour", "Garlic", "Marinara sauce", "Durum wheat spaghetti"
   ]);
+
+  // Theme synchronization with localStorage and documentElement
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const shouldBeDark = savedTheme === "dark" || (!savedTheme && systemPrefersDark);
+
+    setIsDark(shouldBeDark);
+    if (shouldBeDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextDark = !isDark;
+    setIsDark(nextDark);
+    if (nextDark) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -60,8 +87,8 @@ export default function Home() {
       if (health?.open_source_engine) {
         setEngineStatus(
           health.open_source_engine.ollama_connected
-            ? `Local Llama 3.2 (${health.open_source_engine.active_model})`
-            : "Local Open Deterministic Engine"
+            ? `Google Gemma 2 (${health.open_source_engine.active_model})`
+            : "Deterministic Clinical Taxonomy"
         );
       }
     }
@@ -75,11 +102,13 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-stone-100/60 font-sans text-stone-900 antialiased selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen bg-stone-100/60 dark:bg-stone-950 font-sans text-stone-900 dark:text-stone-100 antialiased selection:bg-emerald-100 dark:selection:bg-emerald-950 selection:text-emerald-900 dark:selection:text-emerald-200 transition-colors">
       {/* Top Navigation */}
       <Navbar
         onOpenWhyModal={() => setWhyModalOpen(true)}
         engineStatus={engineStatus}
+        isDark={isDark}
+        onToggleTheme={toggleTheme}
       />
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 space-y-6">
@@ -90,13 +119,13 @@ export default function Home() {
         />
 
         {/* Tab Switcher */}
-        <div className="flex border-b border-stone-200 gap-2 overflow-x-auto pb-px">
+        <div className="flex border-b border-stone-200 dark:border-stone-800 gap-2 overflow-x-auto pb-px">
           <button
             onClick={() => setActiveTab("scanner")}
             className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === "scanner"
-                ? "border-emerald-600 text-emerald-800 bg-white/60 rounded-t-xl"
-                : "border-transparent text-stone-500 hover:text-stone-800 hover:border-stone-300"
+                ? "border-emerald-600 dark:border-emerald-500 text-emerald-800 dark:text-emerald-300 bg-white/60 dark:bg-stone-900/60 rounded-t-xl"
+                : "border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:border-stone-300 dark:hover:border-stone-700"
             }`}
           >
             <ShieldAlert className="h-4 w-4" />
@@ -107,8 +136,8 @@ export default function Home() {
             onClick={() => setActiveTab("remixer")}
             className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === "remixer"
-                ? "border-emerald-600 text-emerald-800 bg-white/60 rounded-t-xl"
-                : "border-transparent text-stone-500 hover:text-stone-800 hover:border-stone-300"
+                ? "border-emerald-600 dark:border-emerald-500 text-emerald-800 dark:text-emerald-300 bg-white/60 dark:bg-stone-900/60 rounded-t-xl"
+                : "border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:border-stone-300 dark:hover:border-stone-700"
             }`}
           >
             <ChefHat className="h-4 w-4" />
@@ -119,8 +148,8 @@ export default function Home() {
             onClick={() => setActiveTab("planner")}
             className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === "planner"
-                ? "border-emerald-600 text-emerald-800 bg-white/60 rounded-t-xl"
-                : "border-transparent text-stone-500 hover:text-stone-800 hover:border-stone-300"
+                ? "border-emerald-600 dark:border-emerald-500 text-emerald-800 dark:text-emerald-300 bg-white/60 dark:bg-stone-900/60 rounded-t-xl"
+                : "border-transparent text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 hover:border-stone-300 dark:hover:border-stone-700"
             }`}
           >
             <CalendarDays className="h-4 w-4" />
@@ -131,13 +160,13 @@ export default function Home() {
             onClick={() => setActiveTab("handover")}
             className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs sm:text-sm font-bold transition-all whitespace-nowrap cursor-pointer ${
               activeTab === "handover"
-                ? "border-rose-500 text-rose-700 bg-white/60 rounded-t-xl"
-                : "border-transparent text-stone-500 hover:text-rose-600 hover:border-stone-300"
+                ? "border-rose-500 text-rose-700 dark:text-rose-300 bg-white/60 dark:bg-stone-900/60 rounded-t-xl"
+                : "border-transparent text-stone-500 dark:text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 hover:border-stone-300 dark:hover:border-stone-700"
             }`}
           >
             <HeartHandshake className="h-4 w-4 text-rose-500" />
             <span>Handover Story & Reaction</span>
-            <span className="text-[10px] font-bold bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-full">
+            <span className="text-[10px] font-bold bg-rose-100 dark:bg-rose-950/80 text-rose-700 dark:text-rose-300 px-1.5 py-0.5 rounded-full">
               Bonus
             </span>
           </button>
@@ -171,25 +200,25 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-16 border-t border-stone-200 bg-white py-8 text-stone-500 text-xs">
+      <footer className="mt-16 border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 py-8 text-stone-500 dark:text-stone-400 text-xs transition-colors">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-stone-800">AllergySafe Table</span>
+            <span className="font-bold text-stone-800 dark:text-stone-200">AllergySafe Table</span>
             <span>•</span>
             <span>Hacktoberfest Weekend Challenge 2026</span>
             <span>•</span>
-            <span className="text-emerald-700 font-semibold">Build for a Friend</span>
+            <span className="text-emerald-700 dark:text-emerald-400 font-semibold">Build for a Friend</span>
           </div>
-          <div className="flex items-center gap-4 text-stone-500">
+          <div className="flex items-center gap-4 text-stone-500 dark:text-stone-400">
             <button
               onClick={() => setWhyModalOpen(true)}
-              className="hover:text-emerald-700 transition-colors cursor-pointer"
+              className="hover:text-emerald-700 dark:hover:text-emerald-400 transition-colors cursor-pointer"
             >
               Why Open Innovation?
             </button>
             <span>•</span>
             <span className="flex items-center gap-1">
-              <Cpu className="h-3.5 w-3.5 text-emerald-600" />
+              <Cpu className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
               100% Local Inference & Offline Data
             </span>
           </div>
