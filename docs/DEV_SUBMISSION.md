@@ -140,7 +140,7 @@ I paired with Claude Code, connected to DEV through DevRelay. This curated sessi
 
 ## Why Does Open Innovation Matter?
 
-**Health details are personal.** Lactose, gut trouble, thyroid levels, and weight are things Prithvi shares with friends, not with an ad network or a model's training data. Gemma runs on her own machine, and it only ever sees a dish name, never her profile. The food checks use open rules, and her profile never leaves her browser. The only outside service is ElevenLabs, and only when she chooses to use voice.
+**Health details are personal.** Lactose, gut trouble, thyroid levels, and weight are things Prithvi shares with friends, not with an ad network or a model's training data. Gemma runs on the user's own machine, and it only ever sees a dish name, never her profile. The food checks use open rules, and her profile never leaves her browser. The only outside service is ElevenLabs, and only when she chooses to use voice.
 
 **Every answer can be checked.** A closed chatbot might say "a little cream is fine" with total confidence. In this app, every verdict traces back to a rule in a plain Python file that anyone can read. If something is wrong for her, like "curd is actually fine for me", it can be fixed in one line, by anyone.
 
