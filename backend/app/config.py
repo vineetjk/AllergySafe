@@ -21,7 +21,7 @@ class Settings(BaseModel):
     # Partner Integrations
     ELEVENLABS_API_KEY: str = os.getenv("ELEVENLABS_API_KEY", "")
     ELEVENLABS_VOICE_ID: str = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM") # Rachel (friendly chef voice)
-    ELEVENLABS_MODEL: str = os.getenv("ELEVENLABS_MODEL", "eleven_turbo_v2_5")
+    ELEVENLABS_MODEL: str = os.getenv("ELEVENLABS_MODEL", "eleven_v4_turbo")
     SENTRY_DSN: str = os.getenv("SENTRY_DSN", "")
 
     CORS_ORIGINS: list[str] = [

@@ -21,7 +21,7 @@ services:
       - key: ELEVENLABS_VOICE_ID
         value: 21m00Tcm4TlvDq8ikWAM
       - key: ELEVENLABS_MODEL
-        value: eleven_turbo_v2_5
+        value: eleven_v4_turbo
 
   # 2. Next.js Frontend Web Application
   - type: web
