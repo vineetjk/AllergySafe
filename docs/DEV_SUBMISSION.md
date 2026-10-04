@@ -132,6 +132,12 @@ Prithvi will use this on her phone, so the whole app is a phone-first shell: a b
 - If the server is slow or down, the app shows a clear error. It never invents a "safe" verdict.
 - GitHub Actions runs the backend tests on Python 3.11 to 3.13 and builds the frontend on every push.
 
+### Built with an agent
+
+I paired with Claude Code, connected to DEV through DevRelay. This curated session shows the moment we found that Gemma was configured but never actually called, and how we wired it in so the model guesses ingredients and the rules make the call:
+
+{% agent_session 439 %}
+
 ## Why Does Open Innovation Matter?
 
 **Health details are personal.** Lactose, gut trouble, thyroid levels, and weight are things Prithvi shares with friends, not with an ad network or a model's training data. Gemma runs on her own machine, and it only ever sees a dish name, never her profile. The food checks use open rules, and her profile never leaves her browser. The only outside service is ElevenLabs, and only when she chooses to use voice.
