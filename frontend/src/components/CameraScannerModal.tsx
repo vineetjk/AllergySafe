@@ -131,6 +131,12 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
     setCameraActive(false);
   };
 
+  // Clearing the photo turns the live camera back on (see wantCamera).
+  const retake = () => {
+    setCapturedImage(null);
+    setProblem(null);
+  };
+
   const close = () => {
     stopCamera();
     setCapturedImage(null);
@@ -309,18 +315,37 @@ export const CameraScannerModal: React.FC<CameraScannerModalProps> = ({
                 </div>
               ) : (
                 <div className="relative overflow-hidden rounded-2xl bg-black aspect-video flex items-center justify-center border border-stone-800">
-                  <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
-                  <div className="pointer-events-none absolute inset-6 border-2 border-dashed border-white/60 rounded-xl flex items-end justify-center pb-2">
-                    <span className="bg-black/60 px-3 py-1 rounded-full text-[11px] font-semibold text-white/90">
-                      Fit the plate or label in the frame
-                    </span>
-                  </div>
+                  {capturedImage ? (
+                    // The stream stops once a photo is taken; show that photo instead of a dead video.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={capturedImage} alt="Photo you took" className="w-full h-full object-cover" />
+                  ) : (
+                    <>
+                      <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover" />
+                      <div className="pointer-events-none absolute inset-6 border-2 border-dashed border-white/60 rounded-xl flex items-end justify-center pb-2">
+                        <span className="bg-black/60 px-3 py-1 rounded-full text-[11px] font-semibold text-white/90">
+                          Fit the plate or label in the frame
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setFacingMode(facingMode === "environment" ? "user" : "environment")}
+                        aria-label="Switch camera"
+                        className="absolute top-3 right-3 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors cursor-pointer"
+                      >
+                        <SwitchCamera className="h-4 w-4" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+              {capturedImage && !cameraUnsupported && !cameraError && (
+                <div className="flex justify-center">
                   <button
-                    onClick={() => setFacingMode(facingMode === "environment" ? "user" : "environment")}
-                    aria-label="Switch camera"
-                    className="absolute top-3 right-3 p-2 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors cursor-pointer"
+                    onClick={retake}
+                    className="flex items-center gap-2 rounded-2xl border border-stone-200 dark:border-stone-700 px-6 py-2.5 text-sm font-bold text-stone-700 dark:text-stone-200 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors cursor-pointer"
                   >
-                    <SwitchCamera className="h-4 w-4" />
+                    <Camera className="h-4 w-4" />
+                    <span>Retake photo</span>
                   </button>
                 </div>
               )}
