@@ -34,7 +34,7 @@ It doesn't try to be a doctor. It's a friend who remembers all four of her rules
 
 ## Demo
 
-**Try it live: [allergysafe-table-web.onrender.com](https://allergysafe-table-web.onrender.com)**
+{% cta https://allergysafe-table-web.onrender.com %}Try the live demo on Render{% endcta %}
 
 It's on Render's free plan, so the first visit can take up to a minute while the server wakes up. The hosted version runs the open food rules and ElevenLabs voice, but not Gemma (see [Where it runs](#where-it-runs) below), so for a dish outside its library it asks you for the ingredients. Try *"Can Prithvi eat paneer butter masala?"* or *"What can she have for breakfast?"*
 
