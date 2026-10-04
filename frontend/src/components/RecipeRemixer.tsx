@@ -2,15 +2,13 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { UserProfile, RecipeRemixResponse } from "../types";
-import { remixRecipe, getApiBase } from "../lib/api";
+import { remixRecipe, requestVoiceGuide, errorMessage } from "../lib/api";
+import { createUnlockedAudio, playVoice, stopSpeech } from "../lib/audio";
 import {
-  ChefHat, Sparkles, CheckCircle2, ShieldCheck, Copy, Printer,
-  RefreshCw, ArrowRight, ArrowLeftRight, Volume2, Square, Mic, Radio
+  ChefHat, Sparkles, ShieldCheck, Copy, Printer,
+  RefreshCw, ArrowLeftRight, Volume2, Square, Radio, Info
 } from "lucide-react";
 import confetti from "canvas-confetti";
-
-// 0.01s of silence, used to unlock audio playback on iOS.
-const SILENT_WAV = "data:audio/wav;base64,UklGRnQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==";
 
 interface RecipeRemixerProps {
   profile: UserProfile;
@@ -20,14 +18,15 @@ interface RecipeRemixerProps {
 
 export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
   profile,
-  initialDishTitle = "Classic Spaghetti & Meatballs",
-  initialIngredients = ["Ground beef", "Egg", "Breadcrumbs", "Parmesan cheese", "All-purpose flour", "Garlic", "Marinara sauce", "Durum wheat spaghetti"]
+  initialDishTitle = "Paneer Butter Masala",
+  initialIngredients = ["Paneer", "Butter", "Fresh cream", "Tomato", "Onion", "Ginger garlic paste", "Sugar", "Spices"]
 }) => {
   const [dishTitle, setDishTitle] = useState(initialDishTitle);
   const [ingredientsText, setIngredientsText] = useState(initialIngredients.join("\n"));
   const [loading, setLoading] = useState(false);
   const [remixResult, setRemixResult] = useState<RecipeRemixResponse | null>(null);
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Voice narration state (ElevenLabs)
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
@@ -35,12 +34,6 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
   const [voiceProvider, setVoiceProvider] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => {
-    if (initialDishTitle) setDishTitle(initialDishTitle);
-    if (initialIngredients && initialIngredients.length > 0) {
-      setIngredientsText(initialIngredients.join("\n"));
-    }
-  }, [initialDishTitle, initialIngredients]);
 
   const handleRemix = async () => {
     const list = ingredientsText
@@ -50,8 +43,11 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
     if (!list.length) return;
 
     setLoading(true);
+    setError(null);
+    stopSpeech(audioRef.current);
+    setIsPlayingAudio(false);
     try {
-      const res = await remixRecipe(dishTitle, list);
+      const res = await remixRecipe(dishTitle, list, profile);
       setRemixResult(res);
       try {
         confetti({
@@ -59,89 +55,52 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
           spread: 60,
           origin: { y: 0.7 }
         });
-      } catch (e) {}
+      } catch {}
     } catch (err) {
-      console.error(err);
+      setError(errorMessage(err));
     } finally {
       setLoading(false);
     }
   };
 
+  // Stop narration when leaving the tab.
+  useEffect(() => () => stopSpeech(audioRef.current), []);
+
   const copyToClipboard = () => {
     if (!remixResult) return;
-    const text = `🍽️ ${remixResult.remixed_title}\n\nSafe Ingredients:\n${remixResult.safe_ingredients
+    const text = `${remixResult.remixed_title}\n\nIngredients:\n${remixResult.safe_ingredients
       .map((i) => `• ${i.substitute} (${i.notes})`)
       .join("\n")}\n\nInstructions:\n${remixResult.instructions.join("\n")}`;
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    navigator.clipboard
+      ?.writeText(text)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => setError("Couldn't copy. Your browser blocked clipboard access."));
   };
 
   const handlePlayVoiceGuide = async () => {
     if (isPlayingAudio) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      if (typeof window !== "undefined" && window.speechSynthesis) {
-        window.speechSynthesis.cancel();
-      }
+      stopSpeech(audioRef.current);
       setIsPlayingAudio(false);
       return;
     }
-
     if (!remixResult) return;
+
+    // Unlock audio during the tap so iOS Safari will play the clip later.
+    const audio = createUnlockedAudio();
+    audioRef.current = audio;
     setVoiceLoading(true);
-
-    // iOS Safari only lets audio play from a direct tap. Start a silent clip
-    // now, while we're still inside the tap, then reuse the same element for
-    // the ElevenLabs audio once the network request finishes.
-    const audio = new Audio(SILENT_WAV);
-    audio.play().catch(() => {});
-
+    setError(null);
     try {
-      const res = await fetch(`${getApiBase()}/voice-guide`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: remixResult.remixed_title,
-          steps: remixResult.instructions,
-          roommate_name: profile.name
-        })
-      });
-
-      const data = await res.json();
-      setVoiceProvider(data.provider || "ElevenLabs Voice");
-
-      if (data.audio_base64) {
-        audio.pause();
-        audio.src = `data:audio/mpeg;base64,${data.audio_base64}`;
-        audioRef.current = audio;
-        audio.onended = () => setIsPlayingAudio(false);
-        await audio.play();
-        setIsPlayingAudio(true);
-      } else {
-        // Fallback to Web Speech API
-        if (typeof window !== "undefined" && window.speechSynthesis) {
-          window.speechSynthesis.cancel();
-          const utterance = new SpeechSynthesisUtterance(data.script);
-          utterance.rate = 0.95;
-          utterance.pitch = 1.05;
-          utterance.onend = () => setIsPlayingAudio(false);
-          window.speechSynthesis.speak(utterance);
-          setIsPlayingAudio(true);
-        }
-      }
+      const data = await requestVoiceGuide(remixResult.remixed_title, remixResult.instructions, profile.name);
+      setVoiceProvider(data.provider);
+      setIsPlayingAudio(true);
+      await playVoice(audio, data, () => setIsPlayingAudio(false));
     } catch (err) {
-      console.error(err);
-      if (typeof window !== "undefined" && window.speechSynthesis) {
-        const utterance = new SpeechSynthesisUtterance(
-          `Let's cook ${remixResult.remixed_title} safely for ${profile.name}. Remember to use clean non-porous utensils.`
-        );
-        utterance.onend = () => setIsPlayingAudio(false);
-        window.speechSynthesis.speak(utterance);
-        setIsPlayingAudio(true);
-      }
+      setIsPlayingAudio(false);
+      setError(errorMessage(err));
     } finally {
       setVoiceLoading(false);
     }
@@ -155,10 +114,10 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
           <div>
             <h3 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
               <ChefHat className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              <span>Recipe Remixer: Flavor Preservation & Safe Swaps</span>
+              <span>Recipe Remixer: make any dish {profile.name}-friendly</span>
             </h3>
             <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-              Powered by Google Gemma 2 open weights • Replaces allergen triggers while preserving Maillard reaction, savoriness, and textures.
+              Swaps only the ingredients that clash with {profile.name}&apos;s profile and keeps everything else. One ingredient per line.
             </p>
           </div>
         </div>
@@ -169,7 +128,7 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
             placeholder="Dish Title (e.g. Chicken Parmigiana)"
             value={dishTitle}
             onChange={(e) => setDishTitle(e.target.value)}
-            className="w-full text-sm font-semibold rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 px-3.5 py-2 text-stone-900 dark:text-stone-100 focus:border-emerald-500 focus:outline-none"
+            className="w-full text-base sm:text-sm font-semibold rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 px-3.5 py-2 text-stone-900 dark:text-stone-100 focus:border-emerald-500 focus:outline-none"
           />
 
           <textarea
@@ -177,7 +136,7 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
             placeholder="Original recipe ingredients (one per line)..."
             value={ingredientsText}
             onChange={(e) => setIngredientsText(e.target.value)}
-            className="w-full text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-3.5 text-stone-800 dark:text-stone-200 focus:border-emerald-500 focus:outline-none font-mono"
+            className="w-full text-base sm:text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 p-3.5 text-stone-800 dark:text-stone-200 focus:border-emerald-500 focus:outline-none font-mono"
           />
 
           <div className="flex justify-end">
@@ -189,7 +148,7 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
               {loading ? (
                 <>
                   <RefreshCw className="h-4 w-4 animate-spin" />
-                  <span>Synthesizing with Gemma 2...</span>
+                  <span>Working on it...</span>
                 </>
               ) : (
                 <>
@@ -202,17 +161,24 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
         </div>
       </div>
 
+      {error && (
+        <div role="alert" className="flex items-start gap-2 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 p-4 text-sm text-rose-900 dark:text-rose-200">
+          <Info className="h-4 w-4 mt-0.5 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
       {/* Remix Results Card */}
       {remixResult && (
         <div className="rounded-2xl border border-emerald-200/80 dark:border-emerald-900/60 bg-white dark:bg-stone-900 p-6 shadow-md shadow-emerald-50 dark:shadow-none space-y-6 transition-colors">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-stone-100 dark:border-stone-800 gap-3">
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800">
-                  100% Co-Living Approved
+                  Made for {profile.name}
                 </span>
-                <span className="text-[11px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
-                  Google Gemma 2 Core
+                <span className="text-[11px] font-semibold text-stone-600 dark:text-stone-300 bg-stone-100 dark:bg-stone-800 px-2 py-0.5 rounded-full border border-stone-200 dark:border-stone-700">
+                  {remixResult.ai_engine}
                 </span>
               </div>
               <h2 className="text-xl font-black text-stone-900 dark:text-stone-100 mt-2">
@@ -237,17 +203,17 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
                 {voiceLoading ? (
                   <>
                     <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                    <span>Loading Voice...</span>
+                    <span>Preparing voice...</span>
                   </>
                 ) : isPlayingAudio ? (
                   <>
                     <Square className="h-3.5 w-3.5 fill-current" />
-                    <span>Stop Voice Guide</span>
+                    <span>Stop reading</span>
                   </>
                 ) : (
                   <>
                     <Volume2 className="h-3.5 w-3.5" />
-                    <span>Hands-Free Voice (ElevenLabs)</span>
+                    <span>Read steps aloud</span>
                   </>
                 )}
               </button>
@@ -277,17 +243,17 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
               <div className="flex items-center gap-2.5">
                 <Radio className="h-4 w-4 text-purple-600 dark:text-purple-400 animate-pulse" />
                 <div>
-                  <span className="font-bold">Hands-Free Kitchen Narration Active</span>
+                  <span className="font-bold">Reading the steps aloud</span>
                   <p className="text-[11px] text-purple-700 dark:text-purple-300">
-                    Voice Provider: {voiceProvider || "ElevenLabs"} • Cooking hands-free prevents allergen cross-contact on screens!
+                    Voice: {voiceProvider || "ElevenLabs"}
                   </p>
                 </div>
               </div>
               <button
                 onClick={handlePlayVoiceGuide}
-                className="text-xs text-purple-700 dark:text-purple-300 font-bold hover:underline"
+                className="text-xs text-purple-700 dark:text-purple-300 font-bold hover:underline cursor-pointer shrink-0"
               >
-                Stop Audio
+                Stop
               </button>
             </div>
           )}
@@ -296,7 +262,7 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
           <div className="rounded-xl border border-emerald-100 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/30 p-4">
             <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 mb-1 flex items-center gap-1.5">
               <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-              <span>Culinary Science & Flavor Preservation</span>
+              <span>Notes</span>
             </h4>
             <p className="text-xs text-emerald-950 dark:text-emerald-100 leading-relaxed font-medium">
               {remixResult.flavor_preservation_notes}
@@ -307,7 +273,7 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-3 flex items-center gap-1.5">
               <ArrowLeftRight className="h-3.5 w-3.5 text-stone-500 dark:text-stone-400" />
-              <span>Ingredient Swaps & Equivalence Matrix</span>
+              <span>Ingredient swaps</span>
             </h4>
 
             {/* Mobile Card List (< 640px) */}
@@ -329,7 +295,7 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
                       </span>
                       {isChanged && (
                         <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-100 dark:bg-emerald-900/80 px-2 py-0.5 rounded-full shrink-0">
-                          Safe Swap
+                          Swap
                         </span>
                       )}
                     </div>
@@ -351,9 +317,9 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
               <table className="w-full text-left text-xs">
                 <thead className="bg-stone-50 dark:bg-stone-800/80 text-stone-500 dark:text-stone-400 uppercase font-semibold border-b border-stone-200 dark:border-stone-800">
                   <tr>
-                    <th className="px-4 py-2.5">Original (Unsafe)</th>
-                    <th className="px-4 py-2.5">Safe 1:1 Replacement</th>
-                    <th className="px-4 py-2.5">Culinary Rationale</th>
+                    <th className="px-4 py-2.5">Original</th>
+                    <th className="px-4 py-2.5">Use instead</th>
+                    <th className="px-4 py-2.5">Why</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100 dark:divide-stone-800 font-medium">
@@ -379,7 +345,7 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
                               {item.substitute}
                             </span>
                           ) : (
-                            <span className="text-stone-500 dark:text-stone-400">Unchanged (Safe)</span>
+                            <span className="text-stone-500 dark:text-stone-400">Keep as is</span>
                           )}
                         </td>
                         <td className="px-4 py-2.5 text-stone-500 dark:text-stone-400 text-[11px] leading-relaxed">
@@ -396,7 +362,7 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
           {/* Instructions */}
           <div>
             <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-2">
-              Sterile Kitchen Prep Instructions
+              Steps
             </h4>
             <div className="space-y-2">
               {remixResult.instructions.map((step, i) => (
@@ -413,7 +379,7 @@ export const RecipeRemixer: React.FC<RecipeRemixerProps> = ({
           {/* Cross Contamination Rules */}
           <div className="rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-950/50 p-4">
             <h5 className="text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-400 mb-2">
-              Kitchen Cross-Contamination Guardrails for this Dish
+              Kitchen tips
             </h5>
             <ul className="text-xs text-stone-600 dark:text-stone-400 space-y-1.5 list-disc pl-5">
               {remixResult.cross_contamination_rules.map((rule, idx) => (

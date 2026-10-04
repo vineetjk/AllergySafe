@@ -45,6 +45,7 @@ export interface ScanResponse {
     roommate_scanned: string;
     offline_capable: boolean;
     privacy_audit: string;
+    trace?: { latency_ms: number; ingredients_evaluated: number; triggers_found: number };
   };
 }
 
@@ -87,10 +88,48 @@ export interface MealPlanResponse {
 }
 
 export interface ImageScanResult {
+  identified: boolean;
   dish_name: string;
   item_category: string;
   detected_ingredients: string[];
   visual_cues: string[];
-  scan_result: ScanResponse;
+  scan_result: ScanResponse | null;
   vision_engine: string;
+  message?: string | null;
 }
+
+export interface AskContext {
+  pending_dish?: string | null;
+}
+
+export interface AskResponse {
+  reply: string;
+  verdict: RiskLevel | null;
+  dish: string | null;
+  assumed_ingredients: string[];
+  concerns: string[];
+  swaps: Array<{ ingredient: string; swap: string; reason: string }>;
+  suggestions: Array<{ title: string; why: string }>;
+  tips: string[];
+  context: AskContext;
+}
+
+export interface VoiceResponse {
+  provider: string;
+  audio_base64: string | null;
+  script: string;
+}
+
+export interface HealthResponse {
+  status: string;
+  open_source_engine?: { ollama_connected: boolean; active_model: string; mode: string };
+  voice?: { text_to_speech: boolean; speech_to_text: boolean; provider: string | null };
+}
+
+export const SEVERITY_LABELS: Record<Severity, string> = {
+  anaphylactic: "Anaphylactic",
+  severe: "Severe allergy",
+  moderate: "Health condition",
+  intolerance: "Intolerance",
+  preference: "Health goal",
+};

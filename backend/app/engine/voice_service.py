@@ -16,16 +16,16 @@ HTTP_FALLBACK_MODEL = "eleven_turbo_v2_5"
 
 class VoiceService:
     @staticmethod
-    def generate_chef_script(title: str, steps: list[str], roommate_name: str = "Maya") -> str:
+    def generate_chef_script(title: str, steps: list[str], roommate_name: str = "Prithvi") -> str:
         """Create a conversational hands-free cooking narration script."""
-        script_parts = [
-            f"Hands-free kitchen guide activated! Let's cook {title} safely for {roommate_name}.",
-            "First, your sterile kitchen reminder: sanitize your prep area with a fresh cloth, and use dedicated non-porous utensils."
-        ]
+        from app.engine.recipe_remixer import strip_step_label
+
+        script_parts = [f"Let's cook {title} for {roommate_name}. I'll read each step slowly."]
         for idx, step in enumerate(steps, 1):
-            clean_step = step.replace(f"Step {idx}:", "").strip()
-            script_parts.append(f"Step {idx}: {clean_step}")
-        script_parts.append(f"All set! Plate directly with clean tongs so you and {roommate_name} can enjoy dinner together safely.")
+            clean_step = strip_step_label(step).rstrip(".")
+            if clean_step:
+                script_parts.append(f"Step {idx}. {clean_step}.")
+        script_parts.append(f"That's it. Enjoy dinner with {roommate_name}!")
         return " ".join(script_parts)
 
     @staticmethod
@@ -111,3 +111,20 @@ class VoiceService:
             logger.error("ElevenLabs %s websocket returned no audio.", model)
             return None
         return b"".join(chunks)
+
+    @staticmethod
+    async def transcribe(audio: bytes, filename: str, content_type: str) -> Optional[str]:
+        """Speech-to-text with ElevenLabs Scribe. Returns None on failure."""
+        url = "https://api.elevenlabs.io/v1/speech-to-text"
+        headers = {"xi-api-key": settings.ELEVENLABS_API_KEY}
+        data = {"model_id": settings.ELEVENLABS_STT_MODEL, "tag_audio_events": "false"}
+        files = {"file": (filename, audio, content_type)}
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                res = await client.post(url, headers=headers, data=data, files=files)
+                if res.status_code == 200:
+                    return (res.json().get("text") or "").strip()
+                logger.error("ElevenLabs STT failed (HTTP %s): %s", res.status_code, res.text[:300])
+        except Exception as e:
+            logger.error("ElevenLabs STT request error: %r", e)
+        return None

@@ -22,13 +22,13 @@ class Settings(BaseModel):
     ELEVENLABS_API_KEY: str = os.getenv("ELEVENLABS_API_KEY", "")
     ELEVENLABS_VOICE_ID: str = os.getenv("ELEVENLABS_VOICE_ID", "21m00Tcm4TlvDq8ikWAM") # Rachel (friendly chef voice)
     ELEVENLABS_MODEL: str = os.getenv("ELEVENLABS_MODEL", "eleven_v4_turbo")
+    ELEVENLABS_STT_MODEL: str = os.getenv("ELEVENLABS_STT_MODEL", "scribe_v2")
     SENTRY_DSN: str = os.getenv("SENTRY_DSN", "")
 
     CORS_ORIGINS: list[str] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "https://*.onrender.com",
-        "*"
+        o.strip()
+        for o in os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+        if o.strip()
     ]
 
 settings = Settings()

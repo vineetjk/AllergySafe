@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AllergySafe Table — Built for Maya",
-  description: "Open-source AI dining companion that audits recipes, remixes unsafe dishes, and plans shared meals for roommates with complex allergies.",
+  title: "AllergySafe Table: Can Prithvi eat this?",
+  description: "Ask whether a dish suits Prithvi's lactose intolerance, sensitive gut, thyroid, and weight-loss goals. Check ingredients, photos, and recipes, and plan healthy shared meals.",
 };
 
 export const viewport: Viewport = {

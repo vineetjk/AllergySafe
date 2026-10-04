@@ -3,7 +3,7 @@ set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 echo "=========================================================="
-echo "  AllergySafe Table — Built for Maya"
+echo "  AllergySafe Table — Built for Prithvi"
 echo "  Open-Source AI Co-Living Dining & Food Safety Platform"
 echo "=========================================================="
 

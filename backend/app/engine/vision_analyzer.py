@@ -8,16 +8,19 @@ from pydantic import BaseModel
 from app.config import settings
 from app.models.schemas import UserProfile, ScanResponse
 from app.engine.safety_analyzer import SafetyAnalyzer
+from app.engine.food_library import find_dish, dish_ingredients
 
 logger = logging.getLogger(__name__)
 
 class ImageScanResult(BaseModel):
+    identified: bool = True
     dish_name: str
     item_category: str # "Prepared Full Meal" | "Single Ingredient" | "Packaged Product"
     detected_ingredients: List[str]
     visual_cues: List[str]
-    scan_result: ScanResponse
+    scan_result: Optional[ScanResponse] = None
     vision_engine: str
+    message: Optional[str] = None
 
 # Curated high-accuracy food signature mapping for visual heuristics when offline
 FOOD_SIGNATURES = [
@@ -127,29 +130,49 @@ class VisionAnalyzer:
         except Exception as e:
             logger.info(f"Ollama vision check bypassed: {e}")
 
-        # 2. Local Fallback based on hint label, text tokens, or default detection
+        # 2. No vision model: use the name the user typed, if any.
         if not detected_dish:
-            hint = (hint_label or "").lower()
+            hint = (hint_label or "").strip()
             match = None
-            if hint:
-                for sig in FOOD_SIGNATURES:
-                    if any(k in hint for k in sig["keywords"]):
-                        match = sig
-                        break
-            if not match:
-                # Default to classic prepared meal signature (Pasta / Sauce)
-                match = FOOD_SIGNATURES[0]
+            for sig in FOOD_SIGNATURES:
+                if hint and any(k in hint.lower() for k in sig["keywords"]):
+                    match = sig
+                    break
+            library_dish = find_dish(hint) if hint else None
 
-            detected_dish = match["dish_name"]
-            category = match["category"]
-            ingredients = match["ingredients"]
-            cues = match["cues"]
+            if library_dish:
+                detected_dish = library_dish
+                category = "Prepared Full Meal"
+                ingredients = dish_ingredients(library_dish)
+                cues = [f"Identified from the name you entered: \"{hint}\""]
+                vision_engine = "Dish name + food library (no image model available)"
+            elif match:
+                detected_dish = match["dish_name"]
+                category = match["category"]
+                ingredients = match["ingredients"]
+                cues = match["cues"]
+                vision_engine = "Dish name + food library (no image model available)"
+            else:
+                return ImageScanResult(
+                    identified=False,
+                    dish_name=hint or "Unidentified food",
+                    item_category="Unknown",
+                    detected_ingredients=[],
+                    visual_cues=[],
+                    scan_result=None,
+                    vision_engine="No image recognition model is available on this server",
+                    message=(
+                        "I couldn't identify this photo. Type the dish name (for example "
+                        "\"rajma chawal\") or paste the ingredients from the label, and I'll check it."
+                    ),
+                )
 
-        # 3. Pass detected ingredients to Safety Analyzer for Maya's profile
+        # 3. Check the detected ingredients against the profile
         ingredients_text = "\n".join(ingredients)
         safety_scan = SafetyAnalyzer.analyze(ingredients_text, profile, detected_dish)
 
         return ImageScanResult(
+            identified=True,
             dish_name=detected_dish,
             item_category=category,
             detected_ingredients=ingredients,

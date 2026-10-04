@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import { UserProfile, MealPlanResponse } from "../types";
-import { generateMealPlan } from "../lib/api";
+import { generateMealPlan, errorMessage } from "../lib/api";
 import {
   CalendarDays, ShoppingCart, ShieldCheck, Clock, Check,
-  Sparkles, RefreshCw, ChefHat, CheckSquare, Square
+  Sparkles, RefreshCw, CheckSquare, Square, Info
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -18,11 +18,13 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
   const [loading, setLoading] = useState(false);
   const [plan, setPlan] = useState<MealPlanResponse | null>(null);
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
+  const [error, setError] = useState<string | null>(null);
 
   const handleGenerate = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const res = await generateMealPlan(days);
+      const res = await generateMealPlan(days, profile);
       setPlan(res);
       setCheckedItems({});
       try {
@@ -31,9 +33,9 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
           spread: 70,
           origin: { y: 0.6 }
         });
-      } catch (e) {}
+      } catch {}
     } catch (err) {
-      console.error(err);
+      setError(errorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -54,16 +56,16 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
           <div>
             <h3 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
               <CalendarDays className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-              <span>Co-Dining Meal Planner: One Shared Table</span>
+              <span>Meal Planner: one dinner for everyone</span>
             </h3>
             <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-              Plan meals where you and {profile.name} eat the exact same dinner without cooking two separate pans or feeling excluded.
+              Dinners that suit {profile.name}&apos;s profile, so everyone eats the same meal. Comes with a shopping list.
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
             <div className="flex items-center gap-1 rounded-xl bg-stone-100 dark:bg-stone-800 p-1 w-full sm:w-auto">
-              {[3, 5].map((d) => (
+              {[3, 5, 7].map((d) => (
                 <button
                   key={d}
                   onClick={() => setDays(d)}
@@ -86,12 +88,12 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
               {loading ? (
                 <>
                   <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                  <span>Planning Dinners...</span>
+                  <span>Planning...</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="h-3.5 w-3.5" />
-                  <span>Generate Shared Plan</span>
+                  <span>Plan dinners</span>
                 </>
               )}
             </button>
@@ -99,11 +101,18 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
         </div>
       </div>
 
+      {error && (
+        <div role="alert" className="flex items-start gap-2 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 p-4 text-sm text-rose-900 dark:text-rose-200">
+          <Info className="h-4 w-4 mt-0.5 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
       {/* Plan Render */}
       {plan && (
         <div className="space-y-6">
           {/* Day Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {plan.days.map((day) => (
               <div
                 key={day.day_number}
@@ -129,7 +138,7 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
 
                   <div className="rounded-xl bg-stone-50 dark:bg-stone-800/60 p-3 border border-stone-200/60 dark:border-stone-700/60 mb-3 text-xs">
                     <span className="font-bold text-stone-800 dark:text-stone-200 block mb-0.5">
-                      Why safe for both:
+                      Why it suits {profile.name}:
                     </span>
                     <span className="text-stone-600 dark:text-stone-400 leading-relaxed">
                       {day.why_safe_for_both}
@@ -139,7 +148,7 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
 
                 <div>
                   <div className="text-[11px] font-semibold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 rounded-lg p-2 border border-amber-200/70 dark:border-amber-800/60">
-                    🛡️ <span className="font-bold">Safety Tip:</span> {day.safety_prep_tip}
+                    <span className="font-bold">Tip:</span> {day.safety_prep_tip}
                   </div>
                 </div>
               </div>
@@ -152,11 +161,11 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
               <div className="flex items-center gap-2">
                 <ShoppingCart className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                 <h3 className="text-sm font-bold text-stone-900 dark:text-stone-100">
-                  Aisle-Sorted Supermarket Shopping List
+                  Shopping list
                 </h3>
               </div>
               <span className="text-xs text-stone-400 dark:text-stone-500">
-                Click items to check off in aisle
+                Tap items to tick them off
               </span>
             </div>
 
@@ -170,10 +179,12 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
                     {items.map((item, idx) => {
                       const isChecked = checkedItems[item];
                       return (
-                        <li
-                          key={idx}
+                        <li key={idx}>
+                          <button
+                          type="button"
                           onClick={() => toggleCheck(item)}
-                          className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors ${
+                          aria-pressed={!!isChecked}
+                          className={`w-full text-left flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-colors ${
                             isChecked
                               ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 line-through opacity-60"
                               : "hover:bg-stone-50 dark:hover:bg-stone-800/50 text-stone-700 dark:text-stone-300"
@@ -185,6 +196,7 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
                             <Square className="h-3.5 w-3.5 text-stone-400 dark:text-stone-600 shrink-0" />
                           )}
                           <span>{item}</span>
+                          </button>
                         </li>
                       );
                     })}
@@ -198,7 +210,7 @@ export const MealPlanner: React.FC<MealPlannerProps> = ({ profile }) => {
           <div className="rounded-2xl border border-emerald-200/80 dark:border-emerald-900/60 bg-emerald-50/40 dark:bg-emerald-950/30 p-5 transition-colors">
             <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-300 mb-2 flex items-center gap-1.5">
               <ShieldCheck className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
-              <span>Roommate Kitchen Cross-Contamination Protocol</span>
+              <span>Kitchen habits that help</span>
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-emerald-950 dark:text-emerald-100 font-medium">
               {plan.kitchen_safety_protocol.map((protocol, i) => (

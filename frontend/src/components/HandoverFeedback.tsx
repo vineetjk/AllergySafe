@@ -1,155 +1,163 @@
 "use client";
 
 import React, { useState } from "react";
+import { createLocalStore, useLocalStore } from "../lib/store";
 import { UserProfile } from "../types";
-import { MessageSquareHeart, Quote, Heart, CheckCircle2, Send, ThumbsUp } from "lucide-react";
+import { NotebookPen, Send, Trash2, ThumbsUp, ThumbsDown, Meh } from "lucide-react";
 
 interface HandoverFeedbackProps {
   profile: UserProfile;
 }
 
-export const HandoverFeedback: React.FC<HandoverFeedbackProps> = ({ profile }) => {
-  const [userComment, setUserComment] = useState("");
-  const [commentList, setCommentList] = useState([
-    {
-      author: "Maya (Roommate)",
-      role: "Recipient & Taste-Tester",
-      text: "I used to feel so guilty every time we talked about ordering dinner or grocery shopping because my Celiac and tree nut allergies make everything ten times harder. Seeing you build something that treats my safety as the default—and gives us dinners that actually taste incredible—made me tear up. For the first time, I don’t feel like a burden at our dinner table.",
-      date: "Saturday, 8:45 PM"
-    }
-  ]);
-  const [submitted, setSubmitted] = useState(false);
+type Reaction = "loved" | "okay" | "avoid";
 
-  const handleSubmit = (e: React.FormEvent) => {
+interface Note {
+  id: string;
+  dish: string;
+  reaction: Reaction;
+  text: string;
+  date: string;
+}
+
+const STORAGE_KEY = "allergysafe.notes.v1";
+
+const REACTIONS: Array<{ value: Reaction; label: string; icon: typeof ThumbsUp; cls: string }> = [
+  { value: "loved", label: "Loved it", icon: ThumbsUp, cls: "text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/50" },
+  { value: "okay", label: "It was okay", icon: Meh, cls: "text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/50" },
+  { value: "avoid", label: "Didn't sit well", icon: ThumbsDown, cls: "text-rose-700 dark:text-rose-300 border-rose-300 dark:border-rose-700 bg-rose-50 dark:bg-rose-950/50" },
+];
+
+const notesStore = createLocalStore<Note[]>(STORAGE_KEY, [], {
+  validate: (v): v is Note[] => Array.isArray(v),
+});
+
+export const HandoverFeedback: React.FC<HandoverFeedbackProps> = ({ profile }) => {
+  const notes = useLocalStore(notesStore);
+  const [dish, setDish] = useState("");
+  const [text, setText] = useState("");
+  const [reaction, setReaction] = useState<Reaction>("loved");
+
+  const update = (next: Note[]) => notesStore.set(next);
+
+  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!userComment.trim()) return;
-    setCommentList([
-      ...commentList,
-      {
-        author: "Roommate Friend",
-        role: "Community Tester",
-        text: userComment.trim(),
-        date: "Just now"
-      }
-    ]);
-    setUserComment("");
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+    if (!dish.trim() && !text.trim()) return;
+    const note: Note = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      dish: dish.trim().slice(0, 120) || "General note",
+      reaction,
+      text: text.trim().slice(0, 1000),
+      date: new Date().toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }),
+    };
+    update([note, ...notes]);
+    setDish("");
+    setText("");
   };
+
+  const inputCls =
+    "w-full text-base sm:text-sm rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 px-3 py-2 focus:border-emerald-500 focus:outline-none";
 
   return (
     <div className="space-y-6">
-      {/* Handover Story Card */}
-      <div className="rounded-2xl border border-rose-200/80 dark:border-rose-900/50 bg-gradient-to-br from-rose-50/40 via-white to-amber-50/30 dark:from-stone-900 dark:via-stone-900/90 dark:to-rose-950/20 p-6 shadow-sm transition-colors">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-rose-600 text-white">
-            <Heart className="h-4 w-4 fill-current" />
-          </div>
-          <div>
-            <h3 className="text-base font-bold text-stone-900 dark:text-stone-100">
-              The Handover: Giving AllergySafe Table to {profile.name}
-            </h3>
-            <p className="text-xs text-stone-500 dark:text-stone-400">
-              Field testing in our apartment kitchen on Thursday night
-            </p>
-          </div>
-        </div>
-
-        <div className="relative rounded-xl bg-white dark:bg-stone-800/80 p-5 border border-stone-200 dark:border-stone-700 shadow-2xs mt-4">
-          <Quote className="absolute top-3 right-3 h-8 w-8 text-rose-200 dark:text-rose-900/40" />
-          <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-100 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300 font-black text-sm">
-              M
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-stone-900 dark:text-stone-100 text-sm">Maya</span>
-                <span className="text-xs text-rose-700 dark:text-rose-300 font-semibold bg-rose-50 dark:bg-rose-950/60 px-2 py-0.5 rounded-full border border-rose-200/60 dark:border-rose-900/60">
-                  Verified Roommate
-                </span>
-                <span className="text-xs text-stone-400 dark:text-stone-500">Oct 3, 2026</span>
-              </div>
-              <p className="text-xs text-stone-700 dark:text-stone-300 mt-2 leading-relaxed italic">
-                "{commentList[0].text}"
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Before vs After Impact Comparison */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-          <div className="rounded-xl border border-stone-200 dark:border-stone-800 bg-stone-50/70 dark:bg-stone-800/60 p-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-stone-400 mb-2">
-              Before AllergySafe Table:
-            </h4>
-            <ul className="text-xs text-stone-600 dark:text-stone-300 space-y-1.5 list-disc pl-4">
-              <li>45-minute panics reading ingredient labels with magnifying glasses</li>
-              <li>Cooking in two separate, depressing mini-skillets to avoid cross-contact</li>
-              <li>Constant mental exhaustion and fear of accidental ER visits</li>
-              <li>Maya felt like an "inconvenient roommate" whenever friends came over</li>
-            </ul>
-          </div>
-
-          <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/30 p-4">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 mb-2">
-              After (With Local Open-Source AI):
-            </h4>
-            <ul className="text-xs text-stone-700 dark:text-stone-200 space-y-1.5 list-disc pl-4 font-medium">
-              <li>Instant 0.2s ingredient audit highlighting sneaky malt extract & derivatives</li>
-              <li>1:1 chef-grade replacements (Tamari, sunflower creams, coconut aminos)</li>
-              <li>A single shared table where both roommates eat the exact same meal</li>
-              <li>100% private: Maya's sensitive medical conditions stay off cloud servers</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      {/* Community / Roommate Notes Widget */}
-      <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-6 shadow-sm transition-colors">
-        <h4 className="text-sm font-bold text-stone-900 dark:text-stone-100 mb-2 flex items-center gap-2">
-          <MessageSquareHeart className="h-4 w-4 text-rose-500" />
-          <span>Roommate Feedback & Kitchen Notes</span>
-        </h4>
-        <p className="text-xs text-stone-500 dark:text-stone-400 mb-4">
-          Leave notes on recipe modifications or how your household handles food allergies.
+      <div className="rounded-2xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 sm:p-6 shadow-sm transition-colors">
+        <h3 className="text-base font-bold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+          <NotebookPen className="h-5 w-5 text-rose-500" />
+          <span>Food notes for {profile.name}</span>
+        </h3>
+        <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
+          Keep track of what {profile.name} enjoyed and what didn&apos;t sit well, so next time is easier. Notes stay in this browser.
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
+        <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+          <input
+            type="text"
+            value={dish}
+            onChange={(e) => setDish(e.target.value)}
+            maxLength={120}
+            placeholder="Dish (e.g. Moong dal khichdi)"
+            aria-label="Dish"
+            className={inputCls}
+          />
+          <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="How did it go?">
+            {REACTIONS.map((r) => {
+              const Icon = r.icon;
+              const active = reaction === r.value;
+              return (
+                <button
+                  key={r.value}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  onClick={() => setReaction(r.value)}
+                  className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
+                    active ? r.cls : "border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {r.label}
+                </button>
+              );
+            })}
+          </div>
           <textarea
             rows={2}
-            value={userComment}
-            onChange={(e) => setUserComment(e.target.value)}
-            placeholder="Write a quick note, reaction, or substitute tip..."
-            className="w-full text-xs rounded-xl border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 p-3 focus:border-emerald-500 focus:outline-none"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            maxLength={1000}
+            placeholder="What worked or didn't? (e.g. lactose-free curd was fine, too spicy, wants it again)"
+            aria-label="Note"
+            className={inputCls}
           />
-          <div className="flex justify-between items-center">
-            {submitted && (
-              <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-                <CheckCircle2 className="h-3.5 w-3.5" /> Note saved!
-              </span>
-            )}
-            <div className="ml-auto">
-              <button
-                type="submit"
-                className="flex items-center gap-1.5 rounded-lg bg-stone-900 dark:bg-stone-100 px-3.5 py-1.5 text-xs font-bold text-white dark:text-stone-900 hover:bg-stone-800 dark:hover:bg-white transition-colors cursor-pointer"
-              >
-                <Send className="h-3.5 w-3.5" /> Post Note
-              </button>
-            </div>
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={!dish.trim() && !text.trim()}
+              className="flex items-center gap-1.5 rounded-lg bg-stone-900 dark:bg-stone-100 px-3.5 py-2 text-xs font-bold text-white dark:text-stone-900 hover:bg-stone-800 dark:hover:bg-white transition-colors cursor-pointer disabled:opacity-50"
+            >
+              <Send className="h-3.5 w-3.5" /> Save note
+            </button>
           </div>
         </form>
+      </div>
 
-        <div className="mt-5 space-y-3 pt-4 border-t border-stone-100 dark:border-stone-800">
-          {commentList.map((c, i) => (
-            <div key={i} className="text-xs p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/60 dark:border-stone-700/60">
-              <div className="flex items-center justify-between font-bold text-stone-800 dark:text-stone-200 mb-1">
-                <span>{c.author}</span>
-                <span className="text-[10px] text-stone-400 dark:text-stone-500 font-normal">{c.date}</span>
+      <div className="space-y-3">
+        {notes.length === 0 ? (
+          <p className="text-center text-xs text-stone-400 dark:text-stone-500 py-6">
+            No notes yet. Add one after you cook something for {profile.name}.
+          </p>
+        ) : (
+          notes.map((n) => {
+            const r = REACTIONS.find((x) => x.value === n.reaction) ?? REACTIONS[1];
+            const Icon = r.icon;
+            return (
+              <div
+                key={n.id}
+                className="rounded-xl border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4 text-xs"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-bold text-sm text-stone-900 dark:text-stone-100">{n.dish}</span>
+                      <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${r.cls}`}>
+                        <Icon className="h-3 w-3" />
+                        {r.label}
+                      </span>
+                    </div>
+                    {n.text && <p className="mt-1.5 text-stone-600 dark:text-stone-300 leading-relaxed whitespace-pre-line">{n.text}</p>}
+                    <span className="mt-1 block text-[10px] text-stone-400">{n.date}</span>
+                  </div>
+                  <button
+                    onClick={() => update(notes.filter((x) => x.id !== n.id))}
+                    aria-label={`Delete note about ${n.dish}`}
+                    className="p-1.5 rounded-lg text-stone-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 cursor-pointer shrink-0"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </div>
-              <p className="text-stone-600 dark:text-stone-300 leading-relaxed">{c.text}</p>
-            </div>
-          ))}
-        </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

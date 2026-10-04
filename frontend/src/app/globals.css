@@ -36,3 +36,16 @@ html, body, button, a, input, select, textarea {
 button {
   -webkit-touch-callout: none;
 }
+
+/* iOS Safari zooms into inputs smaller than 16px; keep them at 16px on phones. */
+@media (max-width: 639px) {
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
+
+@media print {
+  header, footer, [role="tablist"], button {
+    display: none !important;
+  }
+}

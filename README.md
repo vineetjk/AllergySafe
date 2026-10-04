@@ -1,117 +1,116 @@
-# AllergySafe Table 🥗🛡️
+# AllergySafe Table
 
-> **Open-Source AI Co-Living Dining & Food Safety Platform**  
-> Built for **Maya** (Roommate with Celiac Disease, Anaphylactic Tree Nut Allergies & Lactose Intolerance)  
+> **Can Prithvi eat this?** A food companion built for a friend.
 > *Submission for the Hacktoberfest Weekend Challenge: Build for a Friend (HF26)*
 
-[![CI Status](https://github.com/your-username/allergysafe-table/actions/workflows/ci.yml/badge.svg)](https://github.com/your-username/allergysafe-table/actions)
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
-[![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](LICENSE)
-[![Gemma 2 Core](https://img.shields.io/badge/Model-Google%20Gemma%202%20(Open%20Weights)-blue.svg)](https://ai.google.dev/gemma)
+Prithvi is sometimes lactose intolerant, has a sensitive gut, has high TSH (thyroid), and is working on losing weight. Planning food around all four at once is hard, especially when ordering out or cooking together. AllergySafe Table answers the everyday question, *"can she eat this?"*, and suggests easy swaps and healthier options.
+
+The profile is editable, so the app also works for other people and for food allergies such as gluten, nuts, peanuts, soy, eggs, shellfish, and sesame.
 
 ---
 
-## 🏆 Featured & Partner Prize Categories Targeted
+## What it does
 
-| Category | Partner | Prize | How AllergySafe Table Qualifies |
-| :--- | :--- | :--- | :--- |
-| **Grand Prize** | **DEV / HF26** | **$250 + DEV++** | Deeply emotional, genuine narrative solving daily anxiety for roommate **Maya**. |
-| **Featured Category** | **Gemma** | **$200** | Uses **Google Gemma 2** (`gemma2:2b`) open weights for turn-based culinary chemistry, flavor preservation, and safe recipe remixing. |
-| **Featured Category** | **Render** | **$200** | Includes complete `render.yaml` Blueprint orchestrating both the FastAPI backend and Next.js frontend in a scalable multi-service environment. |
-| **Partner Category** | **ElevenLabs** | **$100** | Hands-free kitchen voice guidance so cooks never touch screens with floury/allergen-contaminated hands while cooking. |
-| **Partner Category** | **GitHub** | **$100** | Multi-version automated GitHub Actions CI workflow (`.github/workflows/ci.yml`) auditing clinical safety suites across Python 3.11–3.13. |
-| **Partner Category** | **Sentry** | **$100** | Embedded Sentry agent performance tracing logging latency spans (12.8ms audit) and confirming zero cloud leakage. |
+- **Ask (conversational):** ask in plain words, like *"Can Prithvi eat paneer butter masala?"* or *"What can she have for breakfast?"*. You can type, speak, or send a photo. Answers explain why, suggest swaps, and can be read aloud. If it doesn't know a dish, it asks for the ingredients.
+- **Ingredient scanner:** paste a recipe or a packaged-food label and see what to watch out for, with a suggested swap for each item.
+- **Photo check:** take or upload a photo. Without an image model on the server, the dish name you type is used to look up typical ingredients. The app never guesses.
+- **Recipe remixer:** swaps only the ingredients that clash with the profile and keeps the rest of the dish. It can read the steps aloud hands-free.
+- **Meal planner:** 3, 5, or 7 dinners that suit the profile, so everyone eats the same meal, with a shopping list.
+- **Food notes:** record what she loved and what didn't sit well.
+- **Light and dark themes, phone-friendly layout.**
 
----
+### How the checks work
 
-## 📖 Overview
+Every verdict comes from open, readable rules in the backend's engine folder:
 
-Living with a roommate who has severe dietary restrictions (Celiac, anaphylaxis, lactose intolerance) is often an exhausting minefield of hidden ingredients, separate cooking pans, and social guilt.
+| Profile item | Treated as | Examples flagged |
+| :--- | :--- | :--- |
+| Lactose (sometimes) | Caution | Milk, cream, paneer, curd, lassi, kheer. Ghee is treated as fine. |
+| Sensitive gut | Caution | Deep-fried food, very spicy dishes, fizzy drinks, alcohol, sugar alcohols, rajma |
+| High TSH (thyroid) | Caution | Soy foods, soya chunks, bajra, large raw cruciferous portions |
+| Weight loss goal | Caution | Fried snacks, sweets, sugar, maida, heavy cream, sugary drinks |
+| Food allergies | Danger | Gluten, tree nuts, peanuts, dairy, soy, eggs, shellfish, sesame, including hidden sources |
 
-**AllergySafe Table** is an open-source, local-first AI platform built to ensure roommates can safely cook, eat, and enjoy the **exact same meals** together at one single table.
-
-### Key Capabilities
-
-- **📸 Live Camera & Photo Food Scanning:** Take live camera snapshots or upload food photos of single ingredients or prepared full meals (pasta dishes, salads, packaged sauces) to immediately detect allergen hazards and receive clinical verdicts.
-- **🛡️ Instant Safety Scanner ("Can Maya Eat This?"):** Evaluates recipes, menus, or raw ingredients in <0.2s. Identifies sneaky derivatives (*maltodextrin, brewer's yeast, soy sauce, whey, panko*) and provides clinical rationale and hazard indices.
-- **🌓 Adaptive Light & Dark Themes:** Seamless, accessible dark and light mode UI with instant switching and local preference persistence.
-- **📱 100% Mobile-Friendly & Responsive:** Fluid responsive UI designed specifically for handheld phone use while shopping in store aisles or cooking in the kitchen.
-- **🍳 Recipe Remixer (Google Gemma 2):** Converts unsafe favorite dishes into 100% compliant gourmet meals using 1:1 culinary substitutions (tamari, sunflower seed creams, gluten-free baking blends) that preserve flavor, browning, and texture.
-- **🎙️ Hands-Free Voice Guide (ElevenLabs):** Reads sterile cooking steps and cross-contamination warnings aloud so the chef doesn't contaminate screens with dirty hands.
-- **📅 Co-Dining Meal Planner:** Generates multi-day shared dinner menus where both roommates eat the same meal with zero compromises, accompanied by an aisle-sorted supermarket checklist.
-- **✨ 100% Local & Private:** Runs entirely on your machine via local open-weight models (Google Gemma 2 / Llama 3.2 via Ollama) and a deterministic clinical taxonomy. Zero data transmitted to cloud LLMs.
+The dish library holds typical ingredients for about 80 common Indian and international dishes and foods. This is general food guidance, not medical advice.
 
 ---
 
-## 🛠️ Architecture
+## Tech
+
+| Part | Technology |
+| :--- | :--- |
+| Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS |
+| Backend | FastAPI (Python 3.11+) with a rule-based food engine |
+| Voice | ElevenLabs: Eleven v4 Turbo for speech, Scribe v2 for voice questions. Falls back to the browser's voice without a key. |
+| Optional local model | Ollama (for example Google Gemma) for photo recognition and future features |
+| Hosting | Render Blueprint (`render.yaml`) for both services |
+| CI | GitHub Actions: backend tests on Python 3.11 to 3.13, frontend build |
+
+The browser only talks to the Next.js server. Next.js forwards `/api/*` to the backend, so there are no cross-origin or mixed-content problems on phones. Each visitor's profile and notes are stored in their own browser, never on the server.
 
 ```
-AllergySafe Table
-├── render.yaml               # 🚀 Render Blueprint for 1-click cloud deployment
-├── .github/workflows/ci.yml  # 🐙 GitHub Actions CI test matrix (Python 3.11, 3.12, 3.13)
-├── start.sh                  # ⚡ One-command launch for backend and frontend
-├── backend/                  # FastAPI (Python 3.13)
-│   ├── app/
-│   │   ├── main.py           # FastAPI entrypoint with CORS & Sentry tracing
-│   │   ├── config.py         # Configs (Gemma 2, ElevenLabs, Sentry, Render)
-│   │   ├── models/schemas.py # Typed Pydantic models
-│   │   ├── engine/
-│   │   │   ├── allergen_knowledge_base.py  # 8 allergen classes & 120+ derivatives
-│   │   │   ├── safety_analyzer.py          # Deterministic clinical safety engine
-│   │   │   ├── recipe_remixer.py           # 1:1 culinary substitution synthesizer
-│   │   │   ├── meal_planner.py             # Roommate co-dining generator
-│   │   │   ├── voice_service.py            # ElevenLabs TTS & hands-free kitchen narration
-│   │   │   └── llm_provider.py             # Google Gemma 2 turn-based prompt adapter
-│   │   └── api/routes.py     # REST endpoints (/scan, /remix, /meal-plan, /voice-guide)
-│   ├── tests/test_safety.py  # Pytest test suite (100% passing)
-│   └── requirements.txt
-├── frontend/                 # Next.js 16 (App Router) + TypeScript + Tailwind CSS
-│   ├── src/
-│   │   ├── app/page.tsx      # Main application dashboard
-│   │   ├── components/       # UI components (Scanner, Remixer, Planner, Handover)
-│   │   ├── types/index.ts    # Frontend type definitions
-│   │   └── lib/api.ts        # Resilient API client with offline mock fallbacks
-└── docs/
-    └── DEV_SUBMISSION.md     # 📝 Official DEV.to submission ready to copy-paste
+backend/app/
+  api/routes.py                 REST endpoints (/ask, /scan, /scan-image, /remix, /meal-plan, /voice-guide, /speak, /transcribe)
+  api/rate_limit.py             Limits on the endpoints that spend ElevenLabs credits
+  engine/assistant.py           Conversational "can she eat this?" logic
+  engine/food_library.py        Typical dish ingredients and the healthy meal library
+  engine/allergen_knowledge_base.py  Allergens, health conditions, and swaps
+  engine/safety_analyzer.py     Matches ingredients against a profile
+  engine/recipe_remixer.py      Profile-aware swaps
+  engine/meal_planner.py        Profile-aware dinner plans
+  engine/voice_service.py       ElevenLabs speech and transcription
+frontend/src/
+  components/AskAssistant.tsx   Chat with text, voice, and photo input
+  lib/api.ts                    API client (shows real errors; no fake fallbacks)
+  lib/profile.ts                Default profile, stored per browser
 ```
 
 ---
 
-## 🚀 Quick Start
+## Run locally
 
-### 1. Prerequisites
-- **Python 3.10+**
-- **Node.js 18+** & **npm**
-- *(Optional)* **Ollama** with Gemma 2 (`ollama run gemma2:2b`). If Ollama is offline, the platform seamlessly utilizes its high-precision deterministic clinical engine!
-- *(Optional)* **ElevenLabs API Key** in `backend/.env` for voice synthesis (falls back gracefully to browser Web Speech API).
-
-### 2. Launch Everything in One Command
+Prerequisites: Python 3.11+, Node.js 20.9+.
 
 ```bash
-chmod +x start.sh
+# one-time setup
+python3 -m venv backend/venv
+backend/venv/bin/pip install -r backend/requirements.txt
+(cd frontend && npm install)
+
+# optional: voice
+cp backend/.env.example backend/.env   # then add your ElevenLabs API key
+
 ./start.sh
 ```
 
-- **Frontend:** [http://localhost:3000](http://localhost:3000)
-- **Backend API Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
+- Laptop: http://localhost:3000
+- Phone on the same Wi-Fi: the address `start.sh` prints. Voice input and the live camera need HTTPS, so on a phone use the hosted site or photo upload.
 
-### 3. Run Backend Clinical Safety Tests
+Run the tests:
 
 ```bash
 PYTHONPATH=backend backend/venv/bin/pytest backend/tests -v
+(cd frontend && npm run lint && npm run build)
 ```
 
 ---
 
-## 💡 Why Open Innovation Matters
+## Deploy on Render
 
-1. **Health Data Sovereignty:** Maya's sensitive medical conditions (Celiac flareups, EpiPen prescriptions) remain strictly on-device. No telemetry is logged or used to train corporate cloud models.
-2. **Deterministic Verification:** Closed commercial LLMs hallucinate dangerous advice (*"a splash of soy sauce is usually fine"*). Our open taxonomy deterministically verifies every ingredient with open, auditable clinical rules.
-3. **The "Basement Supermarket" Reality:** Supermarkets are often in basements with zero cell reception. AllergySafe Table works 100% offline with zero internet needed.
-4. **Zero Cost Forever:** Completely free for roommates and students—no \$20/month subscription paywalls.
+1. Push this repository to GitHub.
+2. In Render, choose **New → Blueprint** and select the repository. Both services are created from `render.yaml`.
+3. On the backend service, set `ELEVENLABS_API_KEY` in **Environment**.
+4. If Render gives the backend a URL other than `https://allergysafe-table-api.onrender.com`, set the frontend's `BACKEND_URL` to the real URL and redeploy the frontend.
+
+Free Render services sleep when idle, so the first request after a while can take up to a minute.
 
 ---
 
-## 📄 Submission
+## Why open source
 
-Read the full hackathon submission essay in [docs/DEV_SUBMISSION.md](docs/DEV_SUBMISSION.md).
+- **Private:** the food checks run on the app's own server with open rules, and profiles stay in the browser. ElevenLabs is used only when someone uses voice.
+- **Checkable:** every verdict can be traced to a rule anyone can read and correct.
+- **Self-hostable:** runs on a laptop with no paid AI API.
+- **Free to improve:** anyone can add dishes, ingredients, or conditions.
+
+Read the hackathon write-up in [docs/DEV_SUBMISSION.md](docs/DEV_SUBMISSION.md).

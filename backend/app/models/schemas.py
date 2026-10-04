@@ -15,21 +15,42 @@ class RiskLevel(str, Enum):
     DANGER = "DANGER"
 
 class AllergenItem(BaseModel):
-    name: str
+    name: str = Field(..., min_length=1, max_length=60)
     severity: AllergenSeverity = AllergenSeverity.SEVERE
-    notes: Optional[str] = ""
+    notes: Optional[str] = Field("", max_length=500)
+
+def default_conditions() -> List["AllergenItem"]:
+    return [
+        AllergenItem(
+            name="Lactose (sometimes)",
+            severity=AllergenSeverity.INTOLERANCE,
+            notes="Lactose bothers her on some days. Lactose-free milk, ghee, and aged cheese are usually fine; keep fresh milk, cream, paneer, and curd small or lactose-free."
+        ),
+        AllergenItem(
+            name="Sensitive Gut",
+            severity=AllergenSeverity.MODERATE,
+            notes="Go easy on deep-fried food, very spicy dishes, fizzy drinks, alcohol, and sugar-free sweeteners. Simple home-style food suits her best."
+        ),
+        AllergenItem(
+            name="High TSH (Thyroid)",
+            severity=AllergenSeverity.MODERATE,
+            notes="Limit soy foods and bajra. Cooked cabbage, cauliflower, and broccoli are fine. If she takes thyroid medicine, keep soy, calcium, iron, and coffee about 4 hours apart from it."
+        ),
+        AllergenItem(
+            name="Weight Loss Goal",
+            severity=AllergenSeverity.PREFERENCE,
+            notes="Favour high-protein, high-fibre meals. Limit fried snacks, sweets, sugary drinks, maida, and heavy cream."
+        ),
+    ]
+
 
 class UserProfile(BaseModel):
-    id: str = "maya-default"
-    name: str = "Maya"
-    relationship: str = "Roommate"
-    allergies: List[AllergenItem] = [
-        AllergenItem(name="Gluten / Celiac", severity=AllergenSeverity.ANAPHYLACTIC, notes="Severe Celiac Disease. Strictly no wheat, barley, rye, or hidden malt. Cross-contamination causes acute illness."),
-        AllergenItem(name="Tree Nuts", severity=AllergenSeverity.ANAPHYLACTIC, notes="Almonds, cashews, walnuts, pistachios. Carries EpiPen."),
-        AllergenItem(name="Lactose / Dairy", severity=AllergenSeverity.INTOLERANCE, notes="Severe digestive discomfort; aged parmesan is tolerable in tiny amounts, but prefers dairy-free.")
-    ]
-    dislikes: List[str] = ["Cilantro", "Very spicy hot sauce"]
-    favorite_cuisines: List[str] = ["Mediterranean", "Japanese", "Comfort Mexican", "Rustic Italian"]
+    id: str = "prithvi-default"
+    name: str = Field("Prithvi", min_length=1, max_length=40)
+    relationship: str = Field("Friend", max_length=60)
+    allergies: List[AllergenItem] = Field(default_factory=default_conditions, max_length=20)
+    dislikes: List[str] = Field(default_factory=list, max_length=30)
+    favorite_cuisines: List[str] = Field(default_factory=lambda: ["Indian home-style"], max_length=20)
 
 class IngredientFlag(BaseModel):
     ingredient_name: str
@@ -40,9 +61,9 @@ class IngredientFlag(BaseModel):
     safe_substitute: Optional[str] = None
 
 class ScanRequest(BaseModel):
-    text: str = Field(..., description="Recipe text, ingredient list, or menu description")
+    text: str = Field(..., min_length=1, max_length=8000, description="Recipe text, ingredient list, or menu description")
     profile: Optional[UserProfile] = None
-    dish_title: Optional[str] = None
+    dish_title: Optional[str] = Field(None, max_length=200)
 
 class ScanResponse(BaseModel):
     overall_verdict: RiskLevel
@@ -56,11 +77,12 @@ class ScanResponse(BaseModel):
     ai_trace: Dict[str, Any]
 
 class RecipeRemixRequest(BaseModel):
-    title: str
-    original_ingredients: List[str]
-    original_instructions: Optional[List[str]] = None
+    title: str = Field(..., min_length=1, max_length=200)
+    original_ingredients: List[str] = Field(..., min_length=1, max_length=60)
+    original_instructions: Optional[List[str]] = Field(None, max_length=40)
     target_allergies: Optional[List[str]] = None
-    servings: int = 2
+    servings: int = Field(2, ge=1, le=20)
+    profile: Optional[UserProfile] = None
 
 class RemixedIngredient(BaseModel):
     original: str
@@ -81,7 +103,7 @@ class RecipeRemixResponse(BaseModel):
     ai_engine: str
 
 class MealPlanRequest(BaseModel):
-    days: int = 3
+    days: int = Field(3, ge=1, le=7)
     roommate_profile: Optional[UserProfile] = None
     user_preferences: Optional[str] = "Quick weeknight dinners under 35 mins"
     cuisine_vibes: List[str] = ["Mediterranean", "Mexican", "Japanese"]
@@ -109,3 +131,37 @@ class OpenFoodFactsProduct(BaseModel):
     ingredients_text: Optional[str] = None
     allergens: Optional[str] = None
     traces: Optional[str] = None
+
+
+class AskContext(BaseModel):
+    """Conversation state the client sends back with each message."""
+    pending_dish: Optional[str] = Field(None, max_length=200)
+
+
+class AskRequest(BaseModel):
+    message: str = Field(..., min_length=1, max_length=1000)
+    profile: Optional[UserProfile] = None
+    context: Optional[AskContext] = None
+
+
+class AskSwap(BaseModel):
+    ingredient: str
+    swap: str
+    reason: str
+
+
+class AskSuggestion(BaseModel):
+    title: str
+    why: str
+
+
+class AskResponse(BaseModel):
+    reply: str
+    verdict: Optional[RiskLevel] = None
+    dish: Optional[str] = None
+    assumed_ingredients: List[str] = []
+    concerns: List[str] = []
+    swaps: List[AskSwap] = []
+    suggestions: List[AskSuggestion] = []
+    tips: List[str] = []
+    context: AskContext = AskContext()
