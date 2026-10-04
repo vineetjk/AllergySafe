@@ -26,9 +26,11 @@ I built **AllergySafe Table** specifically for Maya.
 **AllergySafe Table** is an open-source, local-first AI co-dining platform designed to eliminate food anxiety in shared households. It solves three critical problems:
 
 1. **The "Can Maya Eat This?" Instant Safety Scanner:** Parses any recipe, grocery ingredient list, or restaurant menu snippet in under 0.2 seconds. It flags not just obvious allergens, but sneaky derivatives (*maltodextrin, brewer's yeast, hydrolyzed vegetable protein, panko, whey*) with scientific explanations and hazard ratings.
-2. **The 1:1 Flavor-Preserving Recipe Remixer (Powered by Google Gemma 2):** Takes any unsafe favorite dish (like Chicken Parmigiana or Pad Thai) and remixes it using exact culinary substitutes (certified gluten-free tamari, sunflower seed creams, cassava flours) that preserve authentic Maillard browning, texture, and umami so nobody feels like they are eating "hospital food."
-3. **Hands-Free Kitchen Voice Guide (Powered by ElevenLabs):** Cooking with sticky or floured hands means touching a laptop or phone screen transfers microscopic allergen proteins to devices. Our hands-free voice guide speaks the sterile cooking instructions and cross-contamination warnings out loud so hands stay on the pan.
-4. **The Shared Co-Dining Meal Planner:** Generates multi-day dinner menus where both roommates eat the **exact same meal** from a single table, complete with an aisle-sorted supermarket shopping checklist and cross-contamination kitchen protocols (dedicated toaster bags, clean sponge rules, color-coded cutting boards).
+2. **📸 Live Camera & Photo Food Scanner:** Point your phone or laptop camera at a prepared full meal plate (like pasta or pad thai) or grocery package label to take a live photo or upload an image. The vision engine detects the dish category, visible ingredients, and runs an instant allergen safety audit.
+3. **The 1:1 Flavor-Preserving Recipe Remixer (Powered by Google Gemma 2):** Takes any unsafe favorite dish (like Chicken Parmigiana or Pad Thai) and remixes it using exact culinary substitutes (certified gluten-free tamari, sunflower seed creams, cassava flours) that preserve authentic Maillard browning, texture, and umami so nobody feels like they are eating "hospital food."
+4. **🎙️ Hands-Free Kitchen Voice Guide (Powered by ElevenLabs):** Cooking with sticky or floured hands means touching a laptop or phone screen transfers microscopic allergen proteins to devices. Our hands-free voice guide speaks the sterile cooking instructions and cross-contamination warnings out loud so hands stay on the pan.
+5. **The Shared Co-Dining Meal Planner:** Generates multi-day dinner menus where both roommates eat the **exact same meal** from a single table, complete with an aisle-sorted supermarket shopping checklist and cross-contamination kitchen protocols (dedicated toaster bags, clean sponge rules, color-coded cutting boards).
+6. **🌓 Full Light & Dark Mode Support:** Built-in adaptive theme switcher for comfortable visibility whether standing in brightly lit supermarket basements or cooking late-night dinners in dim kitchen lighting.
 
 ---
 
@@ -36,9 +38,11 @@ I built **AllergySafe Table** specifically for Maya.
 
 Here is the AllergySafe Table experience in action:
 
+- **📸 Camera & Photo Food Scanning:** Take a snapshot of a plate of food or upload an ingredient photo. In milliseconds, the vision classifier detects the dish and flags hidden allergen triggers.
 - **Safety Scanner in Action:** Paste an ingredient list containing standard soy sauce. The system instantly sounds a red hazard alarm: *"Contains soy sauce, an overlooked derivative brewed with 40-50% wheat mash. Risk: Severe Celiac Flareup."* It immediately suggests Certified GF Tamari or Coconut Aminos.
 - **1-Click Recipe Remix:** Unsafe dishes are transformed into restaurant-grade allergen-free feasts with a single click.
 - **Hands-Free Audio Narration:** Click *"Hands-Free Voice (ElevenLabs)"* to hear crystal-clear kitchen instructions without ever touching a contaminated screen while cooking.
+- **🌓 Light & Dark Theme:** Instant theme toggle matching user preference and environment.
 - **Aisle-Sorted Grocery Checklist:** Sorts ingredients by supermarket section (Produce, Pantry, Meat, Refrigerated) with interactive checkboxes for quick grocery runs.
 
 *(Screenshots and interactive demo link: [http://localhost:3000](http://localhost:3000))*
